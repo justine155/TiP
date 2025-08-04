@@ -115,7 +115,8 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onCancel, userSettings
     targetFrequency: 'daily' as 'daily' | 'weekly' | '3x-week' | 'flexible', // Default to daily for all tasks
     respectFrequencyForDeadlines: true, // Default to respecting frequency preference
     preferredTimeSlots: [] as ('morning' | 'afternoon' | 'evening')[],
-    minWorkBlock: 30, // Default 30 minutes
+    minWorkBlock: 30, // Default 30 minutes (only for deadline tasks)
+    maxSessionLength: 2, // Default 2 hours for no-deadline tasks
     isOneTimeTask: false, // New field for one-time tasks
   });
   const [showMoreOptions, setShowMoreOptions] = useState(false);

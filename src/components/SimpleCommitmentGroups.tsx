@@ -195,6 +195,215 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
     );
   }
 
+  // If showing only ungrouped, render differently
+  if (showOnlyUngrouped) {
+    const ungroupedCommitments = getGroupedCommitments();
+    return (
+      <div className="space-y-4">
+        {ungroupedCommitments.length === 0 ? (
+          groups.length > 0 ? (
+            <p className="text-gray-500 text-center py-8 dark:text-gray-400">
+              All commitments are organized in groups. Check the "Commitment Groups" section below.
+            </p>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400 mb-2">
+                No commitments added yet
+              </p>
+              <p className="text-sm text-gray-400 dark:text-gray-500">
+                Add your class schedule, work hours, and other fixed commitments above to see them here.
+              </p>
+            </div>
+          )
+        ) : (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {ungroupedCommitments.length} ungrouped commitment{ungroupedCommitments.length !== 1 ? 's' : ''}
+              </span>
+              {groups.length > 0 && (
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                  💡 Use the dropdown to add these to a group
+                </p>
+              )}
+            </div>
+            <div className="space-y-3">
+              {ungroupedCommitments.map(commitment => renderCommitment(commitment, false))}
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
+
+  // If showing only grouped, render group management
+  if (showOnlyGrouped) {
+    return (
+      <div className="space-y-4">
+        {/* Create Group Button */}
+        <div className="flex items-center justify-between">
+          <div className="flex-1">
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              {groups.length > 0 ? `${groups.length} group${groups.length !== 1 ? 's' : ''} created` : 'Group your commitments by category'}
+            </span>
+            {groups.length === 0 && commitments.length > 2 && (
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                💡 Create groups like "Classes", "Work", or "Personal" to organize better
+              </p>
+            )}
+          </div>
+          {!isCreatingGroup && (
+            <button
+              onClick={() => setIsCreatingGroup(true)}
+              className="flex items-center gap-1 px-3 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 font-medium"
+            >
+              <Plus size={14} />
+              New Group
+            </button>
+          )}
+        </div>
+
+        {/* Create Group Form */}
+        {isCreatingGroup && (
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 space-y-2">
+            <input
+              type="text"
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+              placeholder="Group name (e.g., Classes, Work, Personal)"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+              autoFocus
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={createGroup}
+                disabled={!newGroupName.trim()}
+                className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 text-sm"
+              >
+                Create
+              </button>
+              <button
+                onClick={() => {
+                  setIsCreatingGroup(false);
+                  setNewGroupName('');
+                }}
+                className="px-3 py-1 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Groups */}
+        {groups.length === 0 && !isCreatingGroup ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400 mb-2">
+              No groups created yet
+            </p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">
+              Create groups to organize your commitments by category
+            </p>
+          </div>
+        ) : (
+          groups.map(group => {
+            const groupCommitments = commitments.filter(c => group.commitmentIds.includes(c.id));
+
+            return (
+              <div key={group.id} className="border border-gray-200 dark:border-gray-700 rounded-lg">
+                <div className="bg-gray-50 dark:bg-gray-800 px-4 py-3 rounded-t-lg border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {editingGroupId === group.id ? (
+                        <input
+                          type="text"
+                          value={newGroupName}
+                          onChange={(e) => setNewGroupName(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') editGroupName(group.id, newGroupName);
+                            if (e.key === 'Escape') setEditingGroupId(null);
+                          }}
+                          className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                          autoFocus
+                        />
+                      ) : (
+                        <>
+                          <h3 className="font-medium text-gray-800 dark:text-white">{group.name}</h3>
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            ({groupCommitments.length})
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {editingGroupId === group.id ? (
+                        <>
+                          <button
+                            onClick={() => editGroupName(group.id, newGroupName)}
+                            className="text-green-600 hover:text-green-700 dark:text-green-400"
+                          >
+                            <Plus size={16} />
+                          </button>
+                          <button
+                            onClick={() => setEditingGroupId(null)}
+                            className="text-gray-600 hover:text-gray-700 dark:text-gray-400"
+                          >
+                            <X size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => toggleGroupVisibility(group.id)}
+                            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                            title={group.isVisible ? 'Hide group' : 'Show group'}
+                          >
+                            {group.isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingGroupId(group.id);
+                              setNewGroupName(group.name);
+                            }}
+                            className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                            title="Edit group name"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button
+                            onClick={() => deleteGroup(group.id)}
+                            className="text-red-600 hover:text-red-700 dark:text-red-400"
+                            title="Delete group"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {group.isVisible && (
+                  <div className="p-4 space-y-3">
+                    {groupCommitments.length > 0 ? (
+                      groupCommitments.map(commitment => renderCommitment(commitment, true))
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400 text-sm italic text-center py-4">
+                        No commitments in this group. Use the dropdown on ungrouped commitments to add them here.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    );
+  }
+
+  // Default behavior (show everything)
   return (
     <div className="space-y-4">
       {/* Create Group Button */}

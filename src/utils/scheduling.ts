@@ -994,14 +994,19 @@ export const generateNewStudyPlan = (
         let remainingHours = task.estimatedHours;
         const minSessionHours = (task.minWorkBlock || 30) / 60; // Convert minutes to hours
 
-        // Determine session frequency based on task preferences
+        // Determine session frequency based on task preferences and available time
         let sessionGap = 1; // Days between sessions
-        if (task.targetFrequency === 'weekly') sessionGap = 7;
-        else if (task.targetFrequency === '3x-week') sessionGap = 2;
-        else if (task.targetFrequency === 'flexible') {
+        const availableDaysForTask = availableDays.length;
+        const estimatedSessionsNeeded = Math.ceil(task.estimatedHours / 2); // Assume 2 hours per session average
+
+        if (task.targetFrequency === 'weekly') {
+          sessionGap = Math.min(7, Math.floor(availableDaysForTask / Math.max(1, estimatedSessionsNeeded)));
+        } else if (task.targetFrequency === '3x-week') {
+          sessionGap = Math.min(2, Math.floor(availableDaysForTask / Math.max(1, estimatedSessionsNeeded)));
+        } else if (task.targetFrequency === 'flexible') {
           // For flexible tasks, adapt the gap based on available time and task urgency
-          // Start with smaller gaps and increase if needed
-          sessionGap = task.importance ? 2 : 3; // More frequent for important tasks
+          const optimalGap = Math.floor(availableDaysForTask / Math.max(1, estimatedSessionsNeeded));
+          sessionGap = task.importance ? Math.max(1, Math.min(2, optimalGap)) : Math.max(1, Math.min(3, optimalGap));
         }
 
         let sessionNumber = 1;
@@ -1019,12 +1024,19 @@ export const generateNewStudyPlan = (
 
             // Check if we have enough time for minimum session
             if (availableHours >= minSessionHours) {
-              // Determine session length
-              const sessionHours = Math.min(
-                remainingHours,
-                availableHours,
-                Math.max(minSessionHours, Math.min(2, remainingHours)) // Max 2 hours per session
-              );
+              // Determine session length based on task frequency preference
+          let maxSessionHours = 2; // Default max
+          if (task.targetFrequency === 'weekly') {
+            maxSessionHours = Math.min(4, remainingHours); // Longer sessions for weekly tasks
+          } else if (task.targetFrequency === 'daily') {
+            maxSessionHours = Math.min(1.5, remainingHours); // Shorter sessions for daily tasks
+          }
+
+          const sessionHours = Math.min(
+            remainingHours,
+            availableHours,
+            Math.max(minSessionHours, maxSessionHours)
+          );
 
               // Find proper time slot using the existing function to avoid conflicts
               const commitmentsForDay = fixedCommitments.filter(commitment => {

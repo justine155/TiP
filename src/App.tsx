@@ -770,6 +770,52 @@ function App() {
         }
     };
 
+    const handleArchiveCommitment = (commitmentId: string) => {
+        const updatedCommitments = fixedCommitments.map(commitment =>
+            commitment.id === commitmentId ? { ...commitment, archived: !commitment.archived } : commitment
+        );
+        setFixedCommitments(updatedCommitments);
+
+        // Regenerate study plan with updated commitments (archived commitments are excluded)
+        if (tasks.length > 0) {
+            const activeCommitments = updatedCommitments.filter(c => !c.archived);
+            const { plans: newPlans } = generateNewStudyPlan(tasks, settings, activeCommitments, studyPlans);
+
+            // Preserve session status from previous plan
+            newPlans.forEach(plan => {
+                const prevPlan = studyPlans.find(p => p.date === plan.date);
+                if (!prevPlan) return;
+
+                // Preserve session status and properties
+                plan.plannedTasks.forEach(session => {
+                    const prevSession = prevPlan.plannedTasks.find(s => s.taskId === session.taskId && s.sessionNumber === session.sessionNumber);
+                    if (prevSession) {
+                        // Preserve done sessions
+                        if (prevSession.done) {
+                            session.done = true;
+                            session.status = prevSession.status;
+                            session.actualHours = prevSession.actualHours;
+                            session.completedAt = prevSession.completedAt;
+                        }
+                        // Preserve skipped sessions
+                        else if (prevSession.status === 'skipped') {
+                            session.status = 'skipped';
+                        }
+                        // Preserve rescheduled sessions
+                        else if (prevSession.originalTime && prevSession.originalDate) {
+                            session.originalTime = prevSession.originalTime;
+                            session.originalDate = prevSession.originalDate;
+                            session.rescheduledAt = prevSession.rescheduledAt;
+                            session.isManualOverride = prevSession.isManualOverride;
+                        }
+                    }
+                });
+            });
+
+            setStudyPlans(newPlans);
+        }
+    };
+
     const handleDeleteFixedCommitment = (commitmentId: string) => {
         // Find the commitment being deleted
         const commitmentToDelete = fixedCommitments.find(c => c.id === commitmentId);

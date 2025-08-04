@@ -133,6 +133,7 @@ export interface FixedCommitment {
   location?: string;
   description?: string;
   createdAt: string;
+  archived?: boolean;
   // New fields for individual session management
   deletedOccurrences?: string[]; // Array of date strings (YYYY-MM-DD)
   modifiedOccurrences?: {

@@ -661,7 +661,16 @@ const Dashboard: React.FC<DashboardProps> = ({
                           <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
                             <div className="flex items-center space-x-1">
                               <Clock size={16} />
-                              {session.startTime} - {session.endTime}
+                              <span>{session.startTime} - {session.endTime}</span>
+                              {!isDone && !isCompleted && (
+                                <button
+                                  onClick={(e) => handleEditSessionTime(session, task, todaysPlan.date, e)}
+                                  className="ml-2 p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                  title="Edit start time"
+                                >
+                                  <Edit3 size={14} />
+                                </button>
+                              )}
                             </div>
                             <div className="flex items-center space-x-1">
                               <TrendingUp size={16} />

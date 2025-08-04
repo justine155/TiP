@@ -19,7 +19,6 @@ import {
 import Dashboard from './components/Dashboard';
 import TaskInput from './components/TaskInputSimplified';
 import TaskList from './components/TaskList';
-import SimpleCommitmentGroups from './components/SimpleCommitmentGroups';
 import StudyPlanView from './components/StudyPlanView';
 import StudyTimer from './components/StudyTimer';
 import Settings from './components/Settings';

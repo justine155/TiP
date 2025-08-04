@@ -1088,17 +1088,17 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                             )}
                           </div>
                           <div className="flex items-center space-x-2">
-                          <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-300 group">
+                          <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-300">
                             <span>{session.startTime} - {session.endTime}</span>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleEditSessionTime(session, task, plan.date, e);
                               }}
-                              className="p-0.5 text-gray-300 hover:text-blue-500 dark:text-gray-600 dark:hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100"
+                              className="p-1 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 rounded transition-colors"
                               title="Edit start time"
                             >
-                              <Edit3 size={10} />
+                              <Edit3 size={12} />
                             </button>
                             <span>���</span>
                             <span>{formatTime(session.allocatedHours)}</span>

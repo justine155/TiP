@@ -49,6 +49,25 @@ const Dashboard: React.FC<DashboardProps> = ({
   } | null>(null);
   const [sessionsRefreshKey, setSessionsRefreshKey] = useState(0);
 
+  // Session editing handlers
+  const handleEditSessionTime = (session: any, task: Task, planDate: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent timer navigation
+    setSelectedSessionForEdit({ session, task, planDate });
+    setEditModalOpen(true);
+  };
+
+  const handleSessionTimeEditSave = () => {
+    setSessionsRefreshKey(prev => prev + 1);
+    if (onSessionTimeEdit) {
+      onSessionTimeEdit();
+    }
+  };
+
+  // Get sessions with applied time edits
+  const getEditedStudyPlans = () => {
+    return sessionTimeEditor.applyEditsToPlans(studyPlans);
+  };
+
   // Helper to get start/end of week/month
   const todayDate = new Date();
   const startOfWeek = new Date(todayDate);

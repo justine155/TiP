@@ -1334,49 +1334,79 @@ export const generateNewStudyPlan = (
       }
     }
 
-    // Schedule no-deadline tasks in remaining available time
+    // Schedule no-deadline tasks in remaining available time with frequency consideration
     if (noDeadlineTasksBalanced.length > 0) {
-      // Simple scheduling for no-deadline tasks in balanced mode
       noDeadlineTasksBalanced.forEach(task => {
         let remainingHours = task.estimatedHours;
         const minSessionHours = (task.minWorkBlock || 30) / 60;
         let sessionNumber = 1;
 
-        for (const plan of studyPlans) {
-          if (remainingHours <= 0) break;
+        // Determine session frequency based on task preferences
+        let sessionGap = 1;
+        if (task.targetFrequency === 'weekly') sessionGap = 7;
+        else if (task.targetFrequency === '3x-week') sessionGap = 2;
+        else if (task.targetFrequency === 'flexible') {
+          sessionGap = task.importance ? 2 : 3;
+        }
 
+        let planIndex = 0;
+        while (remainingHours > 0 && planIndex < studyPlans.length) {
+          const plan = studyPlans[planIndex];
           const usedHours = plan.plannedTasks.reduce((sum, session) => sum + session.allocatedHours, 0);
           const availableHours = plan.availableHours - usedHours;
 
           if (availableHours >= minSessionHours) {
-            // For one-time tasks, try to schedule all remaining hours at once
+            // Determine session length based on frequency preference
+            let maxSessionHours = 1.5; // Default
+            if (task.targetFrequency === 'weekly') {
+              maxSessionHours = Math.min(4, remainingHours); // Longer sessions for weekly tasks
+            } else if (task.targetFrequency === 'daily') {
+              maxSessionHours = Math.min(1, remainingHours); // Shorter sessions for daily tasks
+            }
+
             let sessionHours;
             if (task.isOneTimeTask && sessionNumber === 1) {
               sessionHours = remainingHours <= availableHours ? remainingHours : 0;
             } else {
-              sessionHours = Math.min(remainingHours, availableHours, 1.5); // Max 1.5 hours per session
+              sessionHours = Math.min(remainingHours, availableHours, maxSessionHours);
             }
 
-            if (sessionHours <= 0) continue;
+            if (sessionHours > 0) {
+              // Find available time slot
+              const commitmentsForDay = fixedCommitments.filter(commitment =>
+                doesCommitmentApplyToDate(commitment, plan.date)
+              );
 
-            const startTimeHour = 9 + (usedHours % 8);
-            const endTimeHour = startTimeHour + sessionHours;
+              const slot = findNextAvailableTimeSlot(
+                sessionHours,
+                plan.plannedTasks,
+                commitmentsForDay,
+                settings.studyWindowStartHour || 6,
+                settings.studyWindowEndHour || 23,
+                settings.bufferTimeBetweenSessions || 0,
+                plan.date
+              );
 
-            const session: StudySession = {
-              taskId: task.id,
-              scheduledTime: plan.date,
-              startTime: `${Math.floor(startTimeHour).toString().padStart(2, '0')}:${((startTimeHour % 1) * 60).toString().padStart(2, '0')}`,
-              endTime: `${Math.floor(endTimeHour).toString().padStart(2, '0')}:${((endTimeHour % 1) * 60).toString().padStart(2, '0')}`,
-              allocatedHours: sessionHours,
-              sessionNumber,
-              isFlexible: true
-            };
+              if (slot) {
+                const session: StudySession = {
+                  taskId: task.id,
+                  scheduledTime: plan.date,
+                  startTime: slot.start,
+                  endTime: slot.end,
+                  allocatedHours: sessionHours,
+                  sessionNumber,
+                  isFlexible: true
+                };
 
-            plan.plannedTasks.push(session);
-            plan.totalStudyHours += sessionHours;
-            remainingHours -= sessionHours;
-            sessionNumber++;
+                plan.plannedTasks.push(session);
+                plan.totalStudyHours += sessionHours;
+                remainingHours -= sessionHours;
+                sessionNumber++;
+              }
+            }
           }
+
+          planIndex += sessionGap; // Apply frequency gap
         }
       });
     }

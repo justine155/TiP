@@ -126,7 +126,12 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   // Today's plan and workday status for filtered period
   const today = getLocalDateString();
-  const todaysPlan = filteredPlans.find(plan => plan.date === today);
+  const editedPlans = getEditedStudyPlans();
+  const filteredEditedPlans = editedPlans.filter(plan => {
+    const planFiltered = filteredPlans.find(fp => fp.date === plan.date);
+    return planFiltered !== undefined;
+  });
+  const todaysPlan = filteredEditedPlans.find(plan => plan.date === today);
   const todayDayOfWeek = todayDate.getDay();
   const isTodayWorkDay = workDays.includes(todayDayOfWeek);
 

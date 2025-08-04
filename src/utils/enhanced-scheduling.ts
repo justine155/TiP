@@ -306,20 +306,25 @@ export class ConflictChecker {
   ): ConflictCheckResult['conflicts'] {
     const conflicts: ConflictCheckResult['conflicts'] = [];
     const sessionDuration = this.calculateDuration(startTime, endTime);
-    
+
+    // Only count active sessions towards daily limits
     const existingDailyHours = existingSessions
-      .filter(session => session.status !== 'skipped')
+      .filter(session =>
+        session.status !== 'skipped' &&
+        session.status !== 'completed' &&
+        !session.done
+      )
       .reduce((sum, session) => sum + session.allocatedHours, 0);
-    
+
     const totalHours = existingDailyHours + sessionDuration;
-    
+
     if (totalHours > this.settings.dailyAvailableHours) {
       conflicts.push({
         type: 'daily_limit_exceeded',
         message: `Would exceed daily limit (${formatTime(totalHours)} > ${formatTime(this.settings.dailyAvailableHours)})`
       });
     }
-    
+
     return conflicts;
   }
 

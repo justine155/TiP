@@ -515,7 +515,8 @@ function App() {
             }
 
             // Generate new study plan with existing plans for progress calculation and missed session redistribution
-            const result = generateNewStudyPlan(tasks, settings, fixedCommitments, studyPlans);
+            const activeCommitments = fixedCommitments.filter(c => !c.archived);
+            const result = generateNewStudyPlan(tasks, settings, activeCommitments, studyPlans);
             const newPlans = result.plans;
             
             // Preserve session status from previous plan

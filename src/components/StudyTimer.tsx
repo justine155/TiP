@@ -54,6 +54,7 @@ const StudyTimer: React.FC<StudyTimerProps> = ({
   onTimerStop,
   onTimerReset,
   onTimerSpeedUp,
+  onTimerUpdateTime,
   onContinueWithNextSession,
   onTakeBreak,
   onReviewCompletedWork,

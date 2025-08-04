@@ -13,7 +13,9 @@ interface SimpleCommitmentGroupsProps {
 const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
   commitments,
   onEditCommitment,
-  onDeleteCommitment
+  onDeleteCommitment,
+  showOnlyUngrouped = false,
+  showOnlyGrouped = false
 }) => {
   const [groups, setGroups] = useState<CommitmentGroup[]>(() => {
     // Initialize groups from localStorage immediately

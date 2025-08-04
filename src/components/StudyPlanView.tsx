@@ -1088,7 +1088,7 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                             )}
                           </div>
                           <div className="flex items-center space-x-2">
-                          <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-300">
+                          <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-300 group">
                             <span>{session.startTime} - {session.endTime}</span>
                             <span>���</span>
                             <span>{formatTime(session.allocatedHours)}</span>

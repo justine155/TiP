@@ -128,14 +128,45 @@ const FixedCommitmentInput: React.FC<FixedCommitmentInputProps> = ({ onAddCommit
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 dark:bg-gray-900 dark:shadow-gray-900">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Add Fixed Commitment</h2>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2 add-commitment-button"
-        >
-          <Plus size={20} />
-          <span>Add Commitment</span>
-        </button>
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Fixed Commitments</h2>
+
+          {/* Tab Navigation */}
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab('commitments')}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'commitments'
+                  ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white'
+              }`}
+            >
+              <Clock size={16} className="inline mr-1" />
+              Commitments
+            </button>
+            <button
+              onClick={() => setActiveTab('groups')}
+              className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                activeTab === 'groups'
+                  ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-white shadow-sm'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white'
+              }`}
+            >
+              <Users size={16} className="inline mr-1" />
+              Groups
+            </button>
+          </div>
+        </div>
+
+        {activeTab === 'commitments' && (
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-purple-700 transition-all duration-200 flex items-center space-x-2 add-commitment-button"
+          >
+            <Plus size={20} />
+            <span>Add Commitment</span>
+          </button>
+        )}
       </div>
 
       {isOpen && (

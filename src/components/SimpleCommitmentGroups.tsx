@@ -403,10 +403,16 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
                         />
                       ) : (
                         <>
-                          <h3 className="font-medium text-gray-800 dark:text-white">{group.name}</h3>
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            ({groupCommitments.length})
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: group.color }}
+                            ></div>
+                            <h3 className="font-medium text-gray-800 dark:text-white">{group.name}</h3>
+                            <span className="text-sm text-gray-500 dark:text-gray-400">
+                              ({groupCommitments.length})
+                            </span>
+                          </div>
                         </>
                       )}
                     </div>

@@ -2170,8 +2170,8 @@ function App() {
                     {activeTab === 'calendar' && (
                         <CalendarView
                             studyPlans={studyPlans}
-                            fixedCommitments={fixedCommitments}
-                            tasks={tasks}
+                        fixedCommitments={fixedCommitments.filter(c => !c.archived)}
+                        tasks={tasks}
                             onSelectTask={handleSelectTask}
                             onStartManualSession={(commitment, durationSeconds) => {
                                 setGlobalTimer({

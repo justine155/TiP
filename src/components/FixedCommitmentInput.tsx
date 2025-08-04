@@ -402,6 +402,14 @@ const FixedCommitmentInput: React.FC<FixedCommitmentInputProps> = ({ onAddCommit
           </div>
         </form>
       )}
+
+      {/* Commitment Groups Tab */}
+      {activeTab === 'groups' && (
+        <CommitmentGroupManager
+          commitments={existingCommitments}
+          onGroupsChange={setCommitmentGroups}
+        />
+      )}
     </div>
   );
 };

@@ -13,22 +13,24 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
   onEditCommitment,
   onDeleteCommitment
 }) => {
-  const [groups, setGroups] = useState<CommitmentGroup[]>([]);
-  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
-  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
-
-  // Load groups from localStorage
-  useEffect(() => {
+  const [groups, setGroups] = useState<CommitmentGroup[]>(() => {
+    // Initialize groups from localStorage immediately
     const savedGroups = localStorage.getItem('timepilot-commitment-groups');
     if (savedGroups) {
       try {
-        setGroups(JSON.parse(savedGroups));
+        const parsed = JSON.parse(savedGroups);
+        console.log('Loaded commitment groups from localStorage:', parsed);
+        return Array.isArray(parsed) ? parsed : [];
       } catch (e) {
         console.warn('Failed to load commitment groups:', e);
+        return [];
       }
     }
-  }, []);
+    return [];
+  });
+  const [isCreatingGroup, setIsCreatingGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
 
   // Save groups to localStorage
   useEffect(() => {

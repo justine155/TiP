@@ -185,7 +185,7 @@ const SessionTimeEditModal: React.FC<SessionTimeEditModalProps> = ({
           </button>
           <button
             onClick={handleSave}
-            disabled={conflictCheck.hasConflict || !newStartTime || isChecking}
+            disabled={conflictCheck.hasConflict || !newStartTime}
             className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
           >
             Save Changes

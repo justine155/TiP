@@ -270,7 +270,7 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
           const almostQuotes = [
             { quote: "The last 10% separates the good from the great.", author: "Unknown", emoji: "💫" },
             { quote: "Finishing strong is an art form.", author: "Unknown", emoji: "🎨" },
-            { quote: "You can see the finish line. Sprint!", author: "Unknown", emoji: "🏃‍♂️" },
+            { quote: "You can see the finish line. Sprint!", author: "Unknown", emoji: "���‍♂️" },
             { quote: "Excellence is doing ordinary things extraordinarily well.", author: "John W. Gardner", emoji: "👑" },
             { quote: "The final stretch is where legends are made.", author: "Unknown", emoji: "⚡" }
           ];
@@ -650,8 +650,7 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
                 
                 {/* Show "No Sessions Planned" message when all sessions are filtered out */}
                 {todaysPlan.plannedTasks.filter(session => {
-                  const sessionStatus = checkSessionStatus(session, todaysPlan.date);
-                  return sessionStatus !== 'missed' && session.status !== 'skipped' && !session.done && session.status !== 'completed';
+                  return session.status !== 'skipped' && !session.done && session.status !== 'completed';
                 }).length === 0 && (
                   <div className="text-center py-8">
                     <div className="text-4xl mb-4">📚</div>

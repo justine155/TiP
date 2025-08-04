@@ -319,7 +319,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           const almostQuotes = [
             { quote: "The last 10% separates the good from the great.", author: "Unknown", emoji: "💫" },
             { quote: "Finishing strong is an art form.", author: "Unknown", emoji: "🎨" },
-            { quote: "You can see the finish line. Sprint!", author: "Unknown", emoji: "���‍���️" },
+            { quote: "You can see the finish line. Sprint!", author: "Unknown", emoji: "���‍����️" },
             { quote: "Excellence is doing ordinary things extraordinarily well.", author: "John W. Gardner", emoji: "👑" },
             { quote: "The final stretch is where legends are made.", author: "Unknown", emoji: "⚡" }
           ];
@@ -533,12 +533,7 @@ const Dashboard: React.FC<DashboardProps> = ({
               </h2>
 
               {/* Info about session time editing */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-4">
-                <p className="text-sm text-blue-800 dark:text-blue-200">
-                  💡 <strong>Tip:</strong> Click the edit icon next to session times to reschedule.
-                  Note: Changes may be reset when modifying settings, adding new tasks, or regenerating schedules.
-                </p>
-              </div>
+
 
               <div className="text-gray-600 mb-2 dark:text-gray-300">
                 {(() => {

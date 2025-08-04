@@ -631,9 +631,10 @@ function App() {
         };
         let updatedTasks = [...tasks, newTask];
         // Generate a study plan with the new task
-        let { plans } = generateNewStudyPlan(updatedTasks, settings, fixedCommitments, studyPlans);
+        const activeCommitments = fixedCommitments.filter(c => !c.archived);
+        let { plans } = generateNewStudyPlan(updatedTasks, settings, activeCommitments, studyPlans);
         // Check if the new task can actually be scheduled by examining the study plan
-        const { plans: newPlans } = generateNewStudyPlan(updatedTasks, settings, fixedCommitments, studyPlans);
+        const { plans: newPlans } = generateNewStudyPlan(updatedTasks, settings, activeCommitments, studyPlans);
         
         // Check if the new task has any unscheduled time (excluding skipped sessions)
         const newTaskScheduledHours: Record<string, number> = {};

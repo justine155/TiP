@@ -308,6 +308,9 @@ function App() {
 
     useEffect(() => {
         try {
+            // Clean up commitment groups localStorage since we removed this feature
+            localStorage.removeItem('timepilot-commitment-groups');
+
             const savedTasks = localStorage.getItem('timepilot-tasks');
             const savedSettings = localStorage.getItem('timepilot-settings');
             const savedCommitments = localStorage.getItem('timepilot-commitments');

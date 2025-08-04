@@ -129,6 +129,17 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-3 mb-3">
             <h3 className="text-base font-semibold text-gray-800 dark:text-white truncate">{commitment.title}</h3>
+            {(() => {
+              const group = getCommitmentGroup(commitment.id);
+              return group ? (
+                <span
+                  className="px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 text-white"
+                  style={{ backgroundColor: group.color }}
+                >
+                  {group.name}
+                </span>
+              ) : null;
+            })()}
             <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize flex-shrink-0 ${
               commitment.type === 'class' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
               commitment.type === 'work' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :

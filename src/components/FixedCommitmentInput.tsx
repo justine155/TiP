@@ -11,6 +11,8 @@ interface FixedCommitmentInputProps {
 
 const FixedCommitmentInput: React.FC<FixedCommitmentInputProps> = ({ onAddCommitment, existingCommitments }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'commitments' | 'groups'>('commitments');
+  const [commitmentGroups, setCommitmentGroups] = useState<CommitmentGroup[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     startTime: '',

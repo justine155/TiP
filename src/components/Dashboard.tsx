@@ -319,7 +319,7 @@ const Dashboard: React.FC<DashboardProps> = ({
           const almostQuotes = [
             { quote: "The last 10% separates the good from the great.", author: "Unknown", emoji: "💫" },
             { quote: "Finishing strong is an art form.", author: "Unknown", emoji: "🎨" },
-            { quote: "You can see the finish line. Sprint!", author: "Unknown", emoji: "���‍����️" },
+            { quote: "You can see the finish line. Sprint!", author: "Unknown", emoji: "🏃‍♂️" },
             { quote: "Excellence is doing ordinary things extraordinarily well.", author: "John W. Gardner", emoji: "👑" },
             { quote: "The final stretch is where legends are made.", author: "Unknown", emoji: "⚡" }
           ];

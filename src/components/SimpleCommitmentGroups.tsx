@@ -177,9 +177,14 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
 
   if (commitments.length === 0) {
     return (
-      <p className="text-gray-500 text-center py-8 dark:text-gray-400">
-        No commitments added yet. Add your class schedule, work hours, and other fixed commitments above.
-      </p>
+      <div className="text-center py-8">
+        <p className="text-gray-500 dark:text-gray-400 mb-2">
+          No commitments added yet
+        </p>
+        <p className="text-sm text-gray-400 dark:text-gray-500">
+          Add your class schedule, work hours, and other fixed commitments above to see them organized here.
+        </p>
+      </div>
     );
   }
 

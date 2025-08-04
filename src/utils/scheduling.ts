@@ -182,18 +182,36 @@ export const checkSessionStatus = (session: StudySession, planDate: string): 'sc
     return 'completed'; // Treat skipped sessions as completed for display purposes
   }
 
+  // Check if session was manually rescheduled or has been redistributed
   if (session.originalTime && session.originalDate) {
     return 'rescheduled';
+  }
+
+  // Check if session has redistribution metadata indicating it was properly moved
+  if (session.schedulingMetadata?.rescheduleHistory && session.schedulingMetadata.rescheduleHistory.length > 0) {
+    const lastReschedule = session.schedulingMetadata.rescheduleHistory[session.schedulingMetadata.rescheduleHistory.length - 1];
+    // If this session was redistributed to this date, don't mark as missed
+    if (lastReschedule.to.date === planDate && lastReschedule.reason === 'redistribution') {
+      console.log(`Session redistributed to ${planDate} - not marking as missed`);
+      return 'scheduled';
+    }
   }
 
   // Only mark as missed if not completed and from past date
   // AND the session was originally scheduled for that past date (not redistributed there)
   if (planDate < today) {
-    // If session has original time/date, it was redistributed - don't mark as missed
-    if (session.originalTime && session.originalDate) {
-      console.log(`Session redistributed to past date ${planDate} - not marking as missed`);
-      return 'scheduled'; // Treat redistributed sessions as scheduled
+    // Additional check: if session has manual override flag, it was moved intentionally
+    if (session.isManualOverride) {
+      console.log(`Session has manual override on ${planDate} - not marking as missed`);
+      return 'scheduled';
     }
+
+    // If session was marked as 'rescheduled' status, don't mark as missed
+    if (session.status === 'rescheduled') {
+      console.log(`Session marked as rescheduled on ${planDate} - not marking as missed`);
+      return 'rescheduled';
+    }
+
     console.log(`Session from past date ${planDate} marked as MISSED`);
     return 'missed';
   }

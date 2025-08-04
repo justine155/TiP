@@ -115,7 +115,7 @@ const SessionTimeEditModal: React.FC<SessionTimeEditModalProps> = ({
           {/* Time Input */}
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-              New Start Time
+              Start Time
             </label>
             <input
               type="time"

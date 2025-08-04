@@ -231,16 +231,24 @@ export class ConflictChecker {
     const conflicts: ConflictCheckResult['conflicts'] = [];
     const startMinutes = this.timeStringToMinutes(startTime);
     const endMinutes = this.timeStringToMinutes(endTime);
-    
+
     existingSessions.forEach(session => {
-      if (session.status === 'skipped') return;
-      
-      const sessionId = `${session.taskId}-${session.sessionNumber}`;
+      // Skip inactive sessions (skipped, completed, or done)
+      if (session.status === 'skipped' || session.status === 'completed' || session.done) return;
+
+      // Create a more robust session ID
+      const sessionId = session.sessionNumber
+        ? `${session.taskId}-${session.sessionNumber}`
+        : `${session.taskId}-${session.startTime}-${session.endTime}`;
       if (excludeSessionId && sessionId === excludeSessionId) return;
-      
+
+      // Skip sessions without valid times
+      if (!session.startTime || !session.endTime) return;
+
       const sessionStart = this.timeStringToMinutes(session.startTime);
       const sessionEnd = this.timeStringToMinutes(session.endTime);
-      
+
+      // Check for overlap
       if (startMinutes < sessionEnd && endMinutes > sessionStart) {
         conflicts.push({
           type: 'session_overlap',
@@ -249,7 +257,7 @@ export class ConflictChecker {
         });
       }
     });
-    
+
     return conflicts;
   }
 

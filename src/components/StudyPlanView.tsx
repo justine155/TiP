@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, BookOpen, TrendingUp, AlertTriangle, CheckCircle, Lightbulb, X, CheckCircle2, Clock3 } from 'lucide-react';
+import { Calendar, Clock, BookOpen, TrendingUp, AlertTriangle, CheckCircle, Lightbulb, X, CheckCircle2, Clock3, Edit3 } from 'lucide-react';
 import { StudyPlan, Task, StudySession, FixedCommitment, UserSettings } from '../types'; // Added FixedCommitment to imports
 import { formatTime, generateSmartSuggestions, getLocalDateString, checkSessionStatus, getDailyAvailableTimeSlots, findNextAvailableStartTime, moveIndividualSession, redistributeMissedSessionsEnhanced, skipSessionEnhanced, validateTimeSlot } from '../utils/scheduling';
 import { RedistributionOptions } from '../types';
+import { SessionTimeEditor } from '../utils/session-time-editor';
+import SessionTimeEditModal from './SessionTimeEditModal';
 
 interface StudyPlanViewProps {
   studyPlans: StudyPlan[];
@@ -29,6 +31,34 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [] = useState<{ taskTitle: string; unscheduledMinutes: number } | null>(null);
   const [showRegenerateConfirmation, setShowRegenerateConfirmation] = useState(false);
+
+  // Session time editing state
+  const [sessionTimeEditor] = useState(() => new SessionTimeEditor(studyPlans, fixedCommitments, settings));
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedSessionForEdit, setSelectedSessionForEdit] = useState<{
+    session: StudySession;
+    task: Task;
+    planDate: string;
+  } | null>(null);
+
+  // Session editing handlers
+  const handleEditSessionTime = (session: StudySession, task: Task, planDate: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent task selection
+    setSelectedSessionForEdit({ session, task, planDate });
+    setEditModalOpen(true);
+  };
+
+  const handleSessionTimeEditSave = () => {
+    // Trigger re-render of study plans with edited times
+    setNotificationMessage('Session time updated successfully!');
+    setTimeout(() => setNotificationMessage(null), 3000);
+  };
+
+  // Get sessions with applied time edits
+  const getEditedStudyPlans = () => {
+    return sessionTimeEditor.applyEditsToPlans(studyPlans);
+  };
+
   // Resched UI state
   const [reschedModal, setReschedModal] = useState<{ open: boolean; task: any | null }>({ open: false, task: null });
   const [reschedDate, setReschedDate] = useState<string>("");
@@ -890,7 +920,16 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                   <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-200">
                     <div className="flex items-center space-x-1">
                       <Clock size={16} />
-                      {session.startTime} - {session.endTime}
+                      <span>{session.startTime} - {session.endTime}</span>
+                      {!isDone && !isCompleted && sessionStatus !== 'missed' && (
+                        <button
+                          onClick={(e) => handleEditSessionTime(session, task, todaysPlan.date, e)}
+                          className="ml-2 p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 rounded transition-colors"
+                          title="Edit start time"
+                        >
+                          <Edit3 size={14} />
+                        </button>
+                      )}
                     </div>
                     <div className="flex items-center space-x-1">
                       <TrendingUp size={16} />
@@ -968,7 +1007,7 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
             <h2 className="text-xl font-semibold text-gray-800 ml-2 dark:text-white">Today's Sessions</h2>
           </div>
           <div className="text-center py-8">
-            <div className="text-4xl mb-4">📚</div>
+            <div className="text-4xl mb-4">����</div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2 dark:text-white">No Sessions Planned</h3>
             <p className="text-gray-600 dark:text-gray-300">
               You have no study sessions planned for today. Time to generate a study plan! 🚀
@@ -1051,6 +1090,16 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                           <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-300">
                             <span>{session.startTime} - {session.endTime}</span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditSessionTime(session, task, plan.date, e);
+                              }}
+                              className="p-1 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 rounded transition-colors"
+                              title="Edit start time"
+                            >
+                              <Edit3 size={12} />
+                            </button>
                             <span>•</span>
                             <span>{formatTime(session.allocatedHours)}</span>
                             {isRescheduled && session.originalTime && (
@@ -1089,6 +1138,22 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
           <h2 className="text-xl font-semibold text-gray-800 mb-2 dark:text-white">Ready to Get Started?</h2>
           <p className="text-gray-500 dark:text-gray-300">Add some tasks and I'll create your perfect study schedule! 🎯</p>
         </div>
+      )}
+
+      {/* Session Time Edit Modal */}
+      {selectedSessionForEdit && (
+        <SessionTimeEditModal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setSelectedSessionForEdit(null);
+          }}
+          session={selectedSessionForEdit.session}
+          task={selectedSessionForEdit.task}
+          planDate={selectedSessionForEdit.planDate}
+          sessionTimeEditor={sessionTimeEditor}
+          onSave={handleSessionTimeEditSave}
+        />
       )}
     </div>
   );

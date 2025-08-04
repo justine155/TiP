@@ -33,7 +33,7 @@ export class ConflictChecker {
     excludeSessionId?: string
   ): ConflictCheckResult {
     const conflicts: ConflictCheckResult['conflicts'] = [];
-    
+
     // Basic time validation
     if (!this.isValidTimeRange(startTime, endTime)) {
       conflicts.push({
@@ -59,9 +59,16 @@ export class ConflictChecker {
       });
     }
 
-    // Check session overlaps
+    // Filter out skipped and completed sessions from conflict checking
+    const activeSessions = existingSessions.filter(session =>
+      session.status !== 'skipped' &&
+      session.status !== 'completed' &&
+      !session.done
+    );
+
+    // Check session overlaps with active sessions only
     const sessionConflicts = this.checkSessionOverlaps(
-      date, startTime, endTime, existingSessions, excludeSessionId
+      date, startTime, endTime, activeSessions, excludeSessionId
     );
     conflicts.push(...sessionConflicts);
 
@@ -69,13 +76,13 @@ export class ConflictChecker {
     const commitmentConflicts = this.checkCommitmentConflicts(date, startTime, endTime);
     conflicts.push(...commitmentConflicts);
 
-    // Check daily limits
-    const dailyLimitConflicts = this.checkDailyLimits(date, startTime, endTime, existingSessions);
+    // Check daily limits (only count active sessions)
+    const dailyLimitConflicts = this.checkDailyLimits(date, startTime, endTime, activeSessions);
     conflicts.push(...dailyLimitConflicts);
 
     const isValid = conflicts.length === 0;
     const suggestedAlternatives = isValid ? undefined : this.findAlternativeSlots(
-      date, this.calculateDuration(startTime, endTime), existingSessions
+      date, this.calculateDuration(startTime, endTime), activeSessions
     );
 
     return {
@@ -224,16 +231,24 @@ export class ConflictChecker {
     const conflicts: ConflictCheckResult['conflicts'] = [];
     const startMinutes = this.timeStringToMinutes(startTime);
     const endMinutes = this.timeStringToMinutes(endTime);
-    
+
     existingSessions.forEach(session => {
-      if (session.status === 'skipped') return;
-      
-      const sessionId = `${session.taskId}-${session.sessionNumber}`;
+      // Skip inactive sessions (skipped, completed, or done)
+      if (session.status === 'skipped' || session.status === 'completed' || session.done) return;
+
+      // Create a more robust session ID
+      const sessionId = session.sessionNumber
+        ? `${session.taskId}-${session.sessionNumber}`
+        : `${session.taskId}-${session.startTime}-${session.endTime}`;
       if (excludeSessionId && sessionId === excludeSessionId) return;
-      
+
+      // Skip sessions without valid times
+      if (!session.startTime || !session.endTime) return;
+
       const sessionStart = this.timeStringToMinutes(session.startTime);
       const sessionEnd = this.timeStringToMinutes(session.endTime);
-      
+
+      // Check for overlap
       if (startMinutes < sessionEnd && endMinutes > sessionStart) {
         conflicts.push({
           type: 'session_overlap',
@@ -242,7 +257,7 @@ export class ConflictChecker {
         });
       }
     });
-    
+
     return conflicts;
   }
 
@@ -291,20 +306,25 @@ export class ConflictChecker {
   ): ConflictCheckResult['conflicts'] {
     const conflicts: ConflictCheckResult['conflicts'] = [];
     const sessionDuration = this.calculateDuration(startTime, endTime);
-    
+
+    // Only count active sessions towards daily limits
     const existingDailyHours = existingSessions
-      .filter(session => session.status !== 'skipped')
+      .filter(session =>
+        session.status !== 'skipped' &&
+        session.status !== 'completed' &&
+        !session.done
+      )
       .reduce((sum, session) => sum + session.allocatedHours, 0);
-    
+
     const totalHours = existingDailyHours + sessionDuration;
-    
+
     if (totalHours > this.settings.dailyAvailableHours) {
       conflicts.push({
         type: 'daily_limit_exceeded',
         message: `Would exceed daily limit (${formatTime(totalHours)} > ${formatTime(this.settings.dailyAvailableHours)})`
       });
     }
-    
+
     return conflicts;
   }
 

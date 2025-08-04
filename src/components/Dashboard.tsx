@@ -1,28 +1,72 @@
 import React, { useState } from 'react';
-import { Clock, BookOpen, TrendingUp, Calendar, Bell, CheckCircle2, AlertTriangle, Clock3, X } from 'lucide-react';
-import { Task, StudyPlan } from '../types';
+import { Clock, BookOpen, TrendingUp, Calendar, Bell, CheckCircle2, AlertTriangle, Clock3, X, Edit3 } from 'lucide-react';
+import { Task, StudyPlan, FixedCommitment, UserSettings } from '../types';
 import { formatTime, getLocalDateString, checkSessionStatus } from '../utils/scheduling';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { SessionTimeEditor } from '../utils/session-time-editor';
+import SessionTimeEditModal from './SessionTimeEditModal';
 
 interface DashboardProps {
   tasks: Task[];
   studyPlans: StudyPlan[];
   dailyAvailableHours: number;
   workDays: number[];
+  fixedCommitments: FixedCommitment[];
+  userSettings: UserSettings;
   // lastTimedSession: { planDate: string; sessionNumber: number } | null; // removed
   // readyToMarkDone: { planDate: string; sessionNumber: number } | null; // keep if used
   // onMarkSessionDone: (planDate: string, sessionNumber: number) => void; // removed
   // onUndoSessionDone: (planDate: string, taskId: string, sessionNumber: number) => void; // removed
   onSelectTask: (task: Task, session?: { allocatedHours: number; planDate?: string; sessionNumber?: number }) => void;
   onGenerateStudyPlan?: () => void; // Add regenerate handler
+  onSessionTimeEdit?: () => void; // Callback when session time is edited
   hasCompletedTutorial?: boolean;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailableHours, workDays, onSelectTask, onGenerateStudyPlan }) => {
+const Dashboard: React.FC<DashboardProps> = ({
+  tasks,
+  studyPlans,
+  dailyAvailableHours,
+  workDays,
+  fixedCommitments,
+  userSettings,
+  onSelectTask,
+  onGenerateStudyPlan,
+  onSessionTimeEdit
+}) => {
   const [showRegeneratePrompt, setShowRegeneratePrompt] = useState(true);
   const [analyticsFilter, setAnalyticsFilter] = useState<'all' | 'week' | 'month' | 'custom'>('all');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
+
+  // Session time editing state
+  const [sessionTimeEditor] = useState(() => new SessionTimeEditor(studyPlans, fixedCommitments, userSettings));
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedSessionForEdit, setSelectedSessionForEdit] = useState<{
+    session: any;
+    task: Task;
+    planDate: string;
+  } | null>(null);
+  const [sessionsRefreshKey, setSessionsRefreshKey] = useState(0);
+
+  // Session editing handlers
+  const handleEditSessionTime = (session: any, task: Task, planDate: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent timer navigation
+    setSelectedSessionForEdit({ session, task, planDate });
+    setEditModalOpen(true);
+  };
+
+  const handleSessionTimeEditSave = () => {
+    setSessionsRefreshKey(prev => prev + 1);
+    if (onSessionTimeEdit) {
+      onSessionTimeEdit();
+    }
+  };
+
+  // Get sessions with applied time edits
+  const getEditedStudyPlans = () => {
+    return sessionTimeEditor.applyEditsToPlans(studyPlans);
+  };
 
   // Helper to get start/end of week/month
   const todayDate = new Date();
@@ -82,7 +126,12 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
 
   // Today's plan and workday status for filtered period
   const today = getLocalDateString();
-  const todaysPlan = filteredPlans.find(plan => plan.date === today);
+  const editedPlans = getEditedStudyPlans();
+  const filteredEditedPlans = editedPlans.filter(plan => {
+    const planFiltered = filteredPlans.find(fp => fp.date === plan.date);
+    return planFiltered !== undefined;
+  });
+  const todaysPlan = filteredEditedPlans.find(plan => plan.date === today);
   const todayDayOfWeek = todayDate.getDay();
   const isTodayWorkDay = workDays.includes(todayDayOfWeek);
 
@@ -270,7 +319,7 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
           const almostQuotes = [
             { quote: "The last 10% separates the good from the great.", author: "Unknown", emoji: "💫" },
             { quote: "Finishing strong is an art form.", author: "Unknown", emoji: "🎨" },
-            { quote: "You can see the finish line. Sprint!", author: "Unknown", emoji: "🏃‍♂️" },
+            { quote: "You can see the finish line. Sprint!", author: "Unknown", emoji: "���‍����️" },
             { quote: "Excellence is doing ordinary things extraordinarily well.", author: "John W. Gardner", emoji: "👑" },
             { quote: "The final stretch is where legends are made.", author: "Unknown", emoji: "⚡" }
           ];
@@ -482,11 +531,14 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
                 <Calendar className="text-blue-600 dark:text-blue-400" size={24} />
                 <span>Today's Sessions</span>
               </h2>
+
+              {/* Info about session time editing */}
+
+
               <div className="text-gray-600 mb-2 dark:text-gray-300">
                 {(() => {
                   const activeSessions = todaysPlan.plannedTasks.filter(session => {
-                    const sessionStatus = checkSessionStatus(session, todaysPlan.date);
-                    return sessionStatus !== 'missed' && session.status !== 'skipped';
+                    return session.status !== 'skipped';
                   });
                   const activeSessionCount = activeSessions.length;
                   const activeSessionHours = activeSessions.reduce((sum, session) => sum + session.allocatedHours, 0);
@@ -618,7 +670,16 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
                           <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
                             <div className="flex items-center space-x-1">
                               <Clock size={16} />
-                              {session.startTime} - {session.endTime}
+                              <span>{session.startTime} - {session.endTime}</span>
+                              {!isDone && !isCompleted && (
+                                <button
+                                  onClick={(e) => handleEditSessionTime(session, task, todaysPlan.date, e)}
+                                  className="ml-2 p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                  title="Edit start time"
+                                >
+                                  <Edit3 size={14} />
+                                </button>
+                              )}
                             </div>
                             <div className="flex items-center space-x-1">
                               <TrendingUp size={16} />
@@ -651,8 +712,7 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
                 
                 {/* Show "No Sessions Planned" message when all sessions are filtered out */}
                 {todaysPlan.plannedTasks.filter(session => {
-                  const sessionStatus = checkSessionStatus(session, todaysPlan.date);
-                  return sessionStatus !== 'missed' && session.status !== 'skipped' && !session.done && session.status !== 'completed';
+                  return session.status !== 'skipped' && !session.done && session.status !== 'completed';
                 }).length === 0 && (
                   <div className="text-center py-8">
                     <div className="text-4xl mb-4">📚</div>
@@ -906,6 +966,22 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
           </div>
         )}
       </div>
+
+      {/* Session Time Edit Modal */}
+      {selectedSessionForEdit && (
+        <SessionTimeEditModal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setSelectedSessionForEdit(null);
+          }}
+          session={selectedSessionForEdit.session}
+          task={selectedSessionForEdit.task}
+          planDate={selectedSessionForEdit.planDate}
+          sessionTimeEditor={sessionTimeEditor}
+          onSave={handleSessionTimeEditSave}
+        />
+      )}
     </div>
   );
 };

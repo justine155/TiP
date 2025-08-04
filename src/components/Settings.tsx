@@ -138,18 +138,27 @@ const Settings: React.FC<SettingsProps> = ({
   };
 
   const validateMissedSessions = () => {
-    // Check for missed sessions across all study plans
-    const missedSessions = studyPlans.flatMap(plan => 
+    // Check for truly missed sessions across all study plans (exclude redistributed ones)
+    const today = new Date().toISOString().split('T')[0];
+    const missedSessions = studyPlans.flatMap(plan =>
       plan.plannedTasks.filter(session => {
         const status = checkSessionStatus(session, plan.date);
-        return status === 'missed';
+
+        // Only count as missed if:
+        // 1. Status is 'missed'
+        // 2. Plan date is before today (not today's overdue sessions)
+        // 3. Session wasn't manually moved or redistributed
+        return status === 'missed' &&
+               plan.date < today &&
+               !session.isManualOverride &&
+               !session.schedulingMetadata?.rescheduleHistory?.some(h => h.reason === 'redistribution');
       })
     );
 
     if (missedSessions.length > 0) {
       return {
         isValid: false,
-        message: `You have ${missedSessions.length} missed session${missedSessions.length > 1 ? 's' : ''}. Please go to the Study Plan tab to redistribute or skip these sessions before changing settings.`
+        message: `You have ${missedSessions.length} unhandled missed session${missedSessions.length > 1 ? 's' : ''}. Please go to the Study Plan tab to redistribute or skip these sessions before changing settings.`
       };
     }
     return { isValid: true, message: "" };

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Clock, MapPin, User, AlertTriangle } from 'lucide-react';
-import { FixedCommitment } from '../types';
+import { Plus, Clock, MapPin, User, AlertTriangle, Users } from 'lucide-react';
+import { FixedCommitment, CommitmentGroup } from '../types';
 import { checkCommitmentConflicts } from '../utils/scheduling';
+import CommitmentGroupManager from './CommitmentGroupManager';
 
 interface FixedCommitmentInputProps {
   onAddCommitment: (commitment: Omit<FixedCommitment, 'id' | 'createdAt'>) => void;
@@ -10,6 +11,7 @@ interface FixedCommitmentInputProps {
 
 const FixedCommitmentInput: React.FC<FixedCommitmentInputProps> = ({ onAddCommitment, existingCommitments }) => {
   const [isOpen, setIsOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     title: '',
     startTime: '',
@@ -368,6 +370,7 @@ const FixedCommitmentInput: React.FC<FixedCommitmentInputProps> = ({ onAddCommit
           </div>
         </form>
       )}
+
     </div>
   );
 };

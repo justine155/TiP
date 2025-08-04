@@ -17,7 +17,8 @@ export interface Task {
   targetFrequency?: 'daily' | 'weekly' | '3x-week' | 'flexible'; // Frequency preference for ALL tasks
   respectFrequencyForDeadlines?: boolean; // User choice to override frequency for urgent tasks
   preferredTimeSlots?: ('morning' | 'afternoon' | 'evening')[]; // Preferred time slots
-  minWorkBlock?: number; // Minimum meaningful work session in minutes
+  minWorkBlock?: number; // Minimum meaningful work session in minutes (only for deadline tasks)
+  maxSessionLength?: number; // Maximum session length in hours (only for no-deadline tasks)
   isOneTimeTask?: boolean; // Task should be completed in one sitting, not divided into sessions
 }
 
@@ -132,6 +133,7 @@ export interface FixedCommitment {
   location?: string;
   description?: string;
   createdAt: string;
+  archived?: boolean;
   // New fields for individual session management
   deletedOccurrences?: string[]; // Array of date strings (YYYY-MM-DD)
   modifiedOccurrences?: {
@@ -218,4 +220,25 @@ export interface UserReschedule {
   status: 'active' | 'obsolete'; // Whether this reschedule is still valid
   taskId: string; // Reference to the task
   sessionNumber?: number; // Session number for tracking
+}
+
+export interface SessionTimeEdit {
+  id: string; // Unique identifier for this edit
+  planDate: string; // Date of the plan (YYYY-MM-DD)
+  taskId: string; // Task ID
+  sessionNumber: number; // Session number
+  originalStartTime: string; // Original start time (HH:MM)
+  newStartTime: string; // New start time (HH:MM)
+  newEndTime: string; // Calculated end time based on duration
+  editedAt: string; // Timestamp when edited
+  isTemporary?: boolean; // If true, will be reset on plan regeneration
+}
+
+export interface CommitmentGroup {
+  id: string;
+  name: string;
+  commitmentIds: string[];
+  color?: string;
+  isVisible: boolean;
+  createdAt: string;
 }

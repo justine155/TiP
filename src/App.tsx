@@ -110,6 +110,7 @@ function App() {
     // Add state to track last-timed session and ready-to-mark-done
     const [lastTimedSession, setLastTimedSession] = useState<{ planDate: string; sessionNumber: number } | null>(null);
     const [editingCommitment, setEditingCommitment] = useState<FixedCommitment | null>(null);
+    const [showArchivedCommitments, setShowArchivedCommitments] = useState(false);
     
     // Global timer state that persists across tab switches
     const [globalTimer, setGlobalTimer] = useState<TimerState>({
@@ -307,6 +308,9 @@ function App() {
 
     useEffect(() => {
         try {
+            // Clean up commitment groups localStorage since we removed this feature
+            localStorage.removeItem('timepilot-commitment-groups');
+
             const savedTasks = localStorage.getItem('timepilot-tasks');
             const savedSettings = localStorage.getItem('timepilot-settings');
             const savedCommitments = localStorage.getItem('timepilot-commitments');
@@ -460,7 +464,8 @@ function App() {
                 
                 if (shouldPreserveReschedules) {
                     // Generate plan but preserve manual reschedules
-                    const result = generateNewStudyPlan(tasks, settings, fixedCommitments, studyPlans);
+                    const activeCommitments = fixedCommitments.filter(c => !c.archived);
+                    const result = generateNewStudyPlan(tasks, settings, activeCommitments, studyPlans);
                     const newPlans = result.plans;
                     
                     // Enhanced preservation logic
@@ -513,7 +518,8 @@ function App() {
             }
 
             // Generate new study plan with existing plans for progress calculation and missed session redistribution
-            const result = generateNewStudyPlan(tasks, settings, fixedCommitments, studyPlans);
+            const activeCommitments = fixedCommitments.filter(c => !c.archived);
+            const result = generateNewStudyPlan(tasks, settings, activeCommitments, studyPlans);
             const newPlans = result.plans;
             
             // Preserve session status from previous plan
@@ -628,9 +634,10 @@ function App() {
         };
         let updatedTasks = [...tasks, newTask];
         // Generate a study plan with the new task
-        let { plans } = generateNewStudyPlan(updatedTasks, settings, fixedCommitments, studyPlans);
+        const activeCommitments = fixedCommitments.filter(c => !c.archived);
+        let { plans } = generateNewStudyPlan(updatedTasks, settings, activeCommitments, studyPlans);
         // Check if the new task can actually be scheduled by examining the study plan
-        const { plans: newPlans } = generateNewStudyPlan(updatedTasks, settings, fixedCommitments, studyPlans);
+        const { plans: newPlans } = generateNewStudyPlan(updatedTasks, settings, activeCommitments, studyPlans);
         
         // Check if the new task has any unscheduled time (excluding skipped sessions)
         const newTaskScheduledHours: Record<string, number> = {};
@@ -766,6 +773,52 @@ function App() {
             
             setStudyPlans(newPlans);
         setLastPlanStaleReason("commitment");
+        }
+    };
+
+    const handleArchiveCommitment = (commitmentId: string) => {
+        const updatedCommitments = fixedCommitments.map(commitment =>
+            commitment.id === commitmentId ? { ...commitment, archived: !commitment.archived } : commitment
+        );
+        setFixedCommitments(updatedCommitments);
+
+        // Regenerate study plan with updated commitments (archived commitments are excluded)
+        if (tasks.length > 0) {
+            const activeCommitments = updatedCommitments.filter(c => !c.archived);
+            const { plans: newPlans } = generateNewStudyPlan(tasks, settings, activeCommitments, studyPlans);
+
+            // Preserve session status from previous plan
+            newPlans.forEach(plan => {
+                const prevPlan = studyPlans.find(p => p.date === plan.date);
+                if (!prevPlan) return;
+
+                // Preserve session status and properties
+                plan.plannedTasks.forEach(session => {
+                    const prevSession = prevPlan.plannedTasks.find(s => s.taskId === session.taskId && s.sessionNumber === session.sessionNumber);
+                    if (prevSession) {
+                        // Preserve done sessions
+                        if (prevSession.done) {
+                            session.done = true;
+                            session.status = prevSession.status;
+                            session.actualHours = prevSession.actualHours;
+                            session.completedAt = prevSession.completedAt;
+                        }
+                        // Preserve skipped sessions
+                        else if (prevSession.status === 'skipped') {
+                            session.status = 'skipped';
+                        }
+                        // Preserve rescheduled sessions
+                        else if (prevSession.originalTime && prevSession.originalDate) {
+                            session.originalTime = prevSession.originalTime;
+                            session.originalDate = prevSession.originalDate;
+                            session.rescheduledAt = prevSession.rescheduledAt;
+                            session.isManualOverride = prevSession.isManualOverride;
+                        }
+                    }
+                });
+            });
+
+            setStudyPlans(newPlans);
         }
     };
 
@@ -1221,6 +1274,14 @@ function App() {
         setGlobalTimer(prev => ({
             ...prev,
             currentTime: Math.max(0, prev.currentTime - 300) // Speed up by 5 minutes (300 seconds)
+        }));
+    };
+
+    // Update timer to custom time
+    const handleTimerUpdateTime = (newTimeInSeconds: number) => {
+        setGlobalTimer(prev => ({
+            ...prev,
+            currentTime: Math.max(0, Math.min(newTimeInSeconds, prev.totalTime))
         }));
     };
 
@@ -2059,8 +2120,14 @@ function App() {
                             studyPlans={studyPlans}
                             dailyAvailableHours={settings.dailyAvailableHours}
                             workDays={settings.workDays}
+                            fixedCommitments={fixedCommitments}
+                            userSettings={settings}
                             onSelectTask={handleSelectTask}
                             onGenerateStudyPlan={handleGenerateStudyPlan}
+                            onSessionTimeEdit={() => {
+                                // Trigger a re-render when session times are edited
+                                setStudyPlans([...studyPlans]);
+                            }}
                             hasCompletedTutorial={localStorage.getItem('timepilot-interactive-tutorial-complete') === 'true'}
                         />
                     )}
@@ -2106,8 +2173,8 @@ function App() {
                     {activeTab === 'calendar' && (
                         <CalendarView
                             studyPlans={studyPlans}
-                            fixedCommitments={fixedCommitments}
-                            tasks={tasks}
+                        fixedCommitments={fixedCommitments.filter(c => !c.archived)}
+                        tasks={tasks}
                             onSelectTask={handleSelectTask}
                             onStartManualSession={(commitment, durationSeconds) => {
                                 setGlobalTimer({
@@ -2152,6 +2219,7 @@ function App() {
                             onTimerStop={handleTimerStop}
                             onTimerReset={handleTimerReset}
                             onTimerSpeedUp={handleTimerSpeedUp}
+                            onTimerUpdateTime={handleTimerUpdateTime}
                             onContinueWithNextSession={handleContinueWithNextSession}
                             onTakeBreak={handleTakeBreak}
                             onReviewCompletedWork={handleReviewCompletedWork}
@@ -2180,17 +2248,38 @@ function App() {
                                 />
                             ) : (
                                 <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 dark:bg-gray-900 dark:shadow-gray-900">
-                                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 dark:text-white">Your Commitments</h2>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">Your Commitments</h2>
+                                        {fixedCommitments.some(c => c.archived) && (
+                                            <button
+                                                onClick={() => setShowArchivedCommitments(!showArchivedCommitments)}
+                                                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                            >
+                                                {showArchivedCommitments ? 'Hide Archived' : 'Show Archived'} ({fixedCommitments.filter(c => c.archived).length})
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="space-y-3">
-                                        {fixedCommitments.length === 0 ? (
-                                            <p className="text-gray-500 text-center py-8 dark:text-gray-400">No commitments added yet. Add your class schedule, work hours, and other fixed commitments above.</p>
+                                        {fixedCommitments.filter(c => showArchivedCommitments || !c.archived).length === 0 ? (
+                                            <p className="text-gray-500 text-center py-8 dark:text-gray-400">
+                                                {showArchivedCommitments ? 'No archived commitments.' : 'No commitments added yet. Add your class schedule, work hours, and other fixed commitments above.'}
+                                            </p>
                                         ) : (
-                                            fixedCommitments.map((commitment) => (
-                                                <div key={commitment.id} className="p-4 sm:p-6 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all duration-200 dark:bg-gray-800 dark:border-gray-700">
+                                            fixedCommitments.filter(c => showArchivedCommitments || !c.archived).map((commitment) => (
+                                                <div key={commitment.id} className={`p-4 sm:p-6 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 ${
+                                                    commitment.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-900' : ''
+                                                }`}>
                                                     <div className="flex items-start justify-between">
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center space-x-3 mb-3">
-                                                                <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white truncate">{commitment.title}</h3>
+                                                                <h3 className={`text-base sm:text-lg font-semibold truncate ${
+                                                                    commitment.archived ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-800 dark:text-white'
+                                                                }`}>{commitment.title}</h3>
+                                                                {commitment.archived && (
+                                                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                                                        Archived
+                                                                    </span>
+                                                                )}
                                                                 <span className={`px-2 sm:px-3 py-1 text-xs font-medium rounded-full capitalize flex-shrink-0 ${
                                                                     commitment.type === 'class' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
                                                                     commitment.type === 'work' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
@@ -2218,12 +2307,33 @@ function App() {
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+                                                            {!commitment.archived && (
+                                                                <button
+                                                                    onClick={() => setEditingCommitment(commitment)}
+                                                                    className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+                                                                    title="Edit commitment"
+                                                                >
+                                                                    <Edit size={20} />
+                                                                </button>
+                                                            )}
                                                             <button
-                                                                onClick={() => setEditingCommitment(commitment)}
-                                                                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
-                                                                title="Edit commitment"
+                                                                onClick={() => handleArchiveCommitment(commitment.id)}
+                                                                className={`p-2 rounded-lg transition-colors ${
+                                                                    commitment.archived
+                                                                        ? 'text-green-500 hover:text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:text-green-300 dark:hover:bg-green-900'
+                                                                        : 'text-orange-500 hover:text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:hover:text-orange-300 dark:hover:bg-orange-900'
+                                                                }`}
+                                                                title={commitment.archived ? "Unarchive commitment" : "Archive commitment"}
                                                             >
-                                                                <Edit size={20} />
+                                                                {commitment.archived ? (
+                                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l3-3m0 0l3 3m-3-3v6m0-6V4" />
+                                                                    </svg>
+                                                                ) : (
+                                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8l4 4 6-6" />
+                                                                    </svg>
+                                                                )}
                                                             </button>
                                                             <button
                                                                 onClick={() => handleDeleteFixedCommitment(commitment.id)}
@@ -2518,7 +2628,7 @@ function App() {
                                                             <li>• Review the Suggestions panel for schedule improvements</li>
                                                             <li>• Adjust time estimates based on your completion patterns</li>
                                                             <li>• Experiment with different Study Plan Modes to find what works best</li>
-                                                            <li>• Use the Progress Dashboard to track your productivity trends</li>
+                                                            <li>��� Use the Progress Dashboard to track your productivity trends</li>
                                                         </ul>
                                                     </div>
                                                 </div>

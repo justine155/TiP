@@ -119,6 +119,10 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
     return commitments.filter(commitment => !groupedCommitmentIds.has(commitment.id));
   };
 
+  const getCommitmentGroup = (commitmentId: string) => {
+    return groups.find(group => group.commitmentIds.includes(commitmentId));
+  };
+
   const renderCommitment = (commitment: FixedCommitment, inGroup = false) => (
     <div key={commitment.id} className="p-4 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all duration-200 dark:bg-gray-800 dark:border-gray-700">
       <div className="flex items-start justify-between">

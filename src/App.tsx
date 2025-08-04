@@ -110,6 +110,7 @@ function App() {
     // Add state to track last-timed session and ready-to-mark-done
     const [lastTimedSession, setLastTimedSession] = useState<{ planDate: string; sessionNumber: number } | null>(null);
     const [editingCommitment, setEditingCommitment] = useState<FixedCommitment | null>(null);
+    const [showArchivedCommitments, setShowArchivedCommitments] = useState(false);
     
     // Global timer state that persists across tab switches
     const [globalTimer, setGlobalTimer] = useState<TimerState>({

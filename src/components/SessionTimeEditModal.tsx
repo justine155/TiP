@@ -33,17 +33,20 @@ const SessionTimeEditModal: React.FC<SessionTimeEditModalProps> = ({
     }
   }, [isOpen, session.startTime]);
 
-  const checkConflict = async (startTime: string) => {
+  const checkConflict = (startTime: string) => {
     setIsChecking(true);
-    const sessionId = `${session.taskId}-${session.sessionNumber}`;
-    const result = sessionTimeEditor.checkTimeConflict(
-      planDate,
-      startTime,
-      session.allocatedHours,
-      sessionId
-    );
-    setConflictCheck(result);
-    setIsChecking(false);
+    // Use setTimeout to avoid blocking the UI
+    setTimeout(() => {
+      const sessionId = `${session.taskId}-${session.sessionNumber}`;
+      const result = sessionTimeEditor.checkTimeConflict(
+        planDate,
+        startTime,
+        session.allocatedHours,
+        sessionId
+      );
+      setConflictCheck(result);
+      setIsChecking(false);
+    }, 0);
   };
 
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {

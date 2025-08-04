@@ -461,7 +461,8 @@ function App() {
                 
                 if (shouldPreserveReschedules) {
                     // Generate plan but preserve manual reschedules
-                    const result = generateNewStudyPlan(tasks, settings, fixedCommitments, studyPlans);
+                    const activeCommitments = fixedCommitments.filter(c => !c.archived);
+                    const result = generateNewStudyPlan(tasks, settings, activeCommitments, studyPlans);
                     const newPlans = result.plans;
                     
                     // Enhanced preservation logic

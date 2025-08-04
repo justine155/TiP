@@ -187,13 +187,20 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
     <div className="space-y-4">
       {/* Create Group Button */}
       <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-600 dark:text-gray-400">
-          {groups.length > 0 ? `${groups.length} group${groups.length !== 1 ? 's' : ''}` : 'Organize your commitments'}
-        </span>
+        <div className="flex-1">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {groups.length > 0 ? `${groups.length} group${groups.length !== 1 ? 's' : ''} created` : 'Group your commitments by category'}
+          </span>
+          {groups.length === 0 && commitments.length > 2 && (
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+              💡 Create groups like "Classes", "Work", or "Personal" to organize better
+            </p>
+          )}
+        </div>
         {!isCreatingGroup && (
           <button
             onClick={() => setIsCreatingGroup(true)}
-            className="flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
+            className="flex items-center gap-1 px-3 py-2 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 font-medium"
           >
             <Plus size={14} />
             New Group

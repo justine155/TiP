@@ -2195,13 +2195,26 @@ function App() {
                                     onCancel={() => setEditingCommitment(null)}
                                 />
                             ) : (
-                                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 dark:bg-gray-900 dark:shadow-gray-900">
-                                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 dark:text-white">Your Commitments</h2>
-                                    <div className="space-y-3">
+                                <div className="space-y-6">
+                                    {/* Ungrouped Commitments */}
+                                    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 dark:bg-gray-900 dark:shadow-gray-900">
+                                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 dark:text-white">Your Commitments</h2>
                                         <SimpleCommitmentGroups
                                             commitments={fixedCommitments}
                                             onEditCommitment={setEditingCommitment}
                                             onDeleteCommitment={handleDeleteFixedCommitment}
+                                            showOnlyUngrouped={true}
+                                        />
+                                    </div>
+
+                                    {/* Grouped Commitments */}
+                                    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 dark:bg-gray-900 dark:shadow-gray-900">
+                                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 dark:text-white">Commitment Groups</h2>
+                                        <SimpleCommitmentGroups
+                                            commitments={fixedCommitments}
+                                            onEditCommitment={setEditingCommitment}
+                                            onDeleteCommitment={handleDeleteFixedCommitment}
+                                            showOnlyGrouped={true}
                                         />
                                     </div>
                                 </div>

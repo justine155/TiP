@@ -598,18 +598,22 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onCancel, userSettings
                         </div>
 
                         <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">Minimum session</label>
-                          <select
-                            value={formData.minWorkBlock}
-                            onChange={e => setFormData(f => ({ ...f, minWorkBlock: parseInt(e.target.value) }))}
-                            className="w-full px-2 py-1 border rounded text-sm bg-white dark:bg-gray-800 dark:text-white"
-                          >
-                            <option value={15}>15 minutes</option>
-                            <option value={30}>30 minutes</option>
-                            <option value={45}>45 minutes</option>
-                            <option value={60}>1 hour</option>
-                            <option value={90}>1.5 hours</option>
-                          </select>
+                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">Maximum session length</label>
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              value={formData.maxSessionLength}
+                              onChange={e => setFormData(f => ({ ...f, maxSessionLength: Math.max(0.5, Math.min(8, parseFloat(e.target.value) || 2)) }))}
+                              min="0.5"
+                              max="8"
+                              step="0.5"
+                              className="w-20 px-2 py-1 border rounded text-sm bg-white dark:bg-gray-800 dark:text-white"
+                            />
+                            <span className="text-xs text-gray-700 dark:text-gray-200">hours</span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Maximum length for each study session
+                          </div>
                         </div>
                       </>
                     )}

@@ -2173,7 +2173,7 @@ function App() {
                     {activeTab === 'calendar' && (
                         <CalendarView
                             studyPlans={studyPlans}
-                        fixedCommitments={fixedCommitments.filter(c => !c.archived)}
+                        fixedCommitments={fixedCommitments}
                         tasks={tasks}
                             onSelectTask={handleSelectTask}
                             onStartManualSession={(commitment, durationSeconds) => {
@@ -2302,6 +2302,12 @@ function App() {
                                                                     <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                                                                         <span className="font-medium">📍</span>
                                                                         <span className="truncate">{commitment.location}</span>
+                                                                    </div>
+                                                                )}
+                                                                {commitment.description && (
+                                                                    <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+                                                                        <span className="font-medium">📝</span>
+                                                                        <span className="truncate">{commitment.description}</span>
                                                                     </div>
                                                                 )}
                                                             </div>

@@ -128,7 +128,8 @@ const TaskInputSimplified: React.FC<TaskInputProps> = ({ onAddTask, onCancel, us
       targetFrequency: formData.targetFrequency,
       respectFrequencyForDeadlines: formData.respectFrequencyForDeadlines,
       preferredTimeSlots: formData.preferredTimeSlots,
-      minWorkBlock: formData.minWorkBlock,
+      minWorkBlock: formData.deadlineType !== 'none' ? formData.minWorkBlock : undefined,
+      maxSessionLength: formData.deadlineType === 'none' ? formData.maxSessionLength : undefined,
       isOneTimeTask: formData.isOneTimeTask,
     });
     

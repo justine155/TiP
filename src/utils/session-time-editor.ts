@@ -281,11 +281,12 @@ export class SessionTimeEditor {
     const studyEnd = this.settings.studyWindowEndHour * 60;
     const sessionMinutes = sessionDuration * 60;
 
-    // Try every 15-minute interval within study window
-    for (let minutes = studyStart; minutes <= studyEnd - sessionMinutes; minutes += 15) {
+    // Try every 30-minute interval within study window (faster than 15-minute)
+    for (let minutes = studyStart; minutes <= studyEnd - sessionMinutes; minutes += 30) {
       const startTime = this.minutesToTime(minutes);
-      const conflictCheck = this.checkTimeConflict(planDate, startTime, sessionDuration, excludeSessionId);
-      
+      // Use includeSuggestions: false to avoid recursive calls
+      const conflictCheck = this.checkTimeConflict(planDate, startTime, sessionDuration, excludeSessionId, false);
+
       if (!conflictCheck.hasConflict) {
         suggestions.push(startTime);
         if (suggestions.length >= 3) break; // Limit suggestions

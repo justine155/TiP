@@ -918,16 +918,16 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                     )}
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-200">
-                    <div className="flex items-center space-x-1 group">
+                    <div className="flex items-center space-x-1">
                       <Clock size={16} />
                       <span>{session.startTime} - {session.endTime}</span>
                       {!isDone && !isCompleted && sessionStatus !== 'missed' && (
                         <button
                           onClick={(e) => handleEditSessionTime(session, task, todaysPlan.date, e)}
-                          className="ml-1 p-1 text-gray-300 hover:text-blue-500 dark:text-gray-600 dark:hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100"
+                          className="ml-2 p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20 rounded transition-colors"
                           title="Edit start time"
                         >
-                          <Edit3 size={12} />
+                          <Edit3 size={14} />
                         </button>
                       )}
                     </div>

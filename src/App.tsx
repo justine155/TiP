@@ -2167,6 +2167,7 @@ function App() {
                             onTimerStop={handleTimerStop}
                             onTimerReset={handleTimerReset}
                             onTimerSpeedUp={handleTimerSpeedUp}
+                            onTimerUpdateTime={handleTimerUpdateTime}
                             onContinueWithNextSession={handleContinueWithNextSession}
                             onTakeBreak={handleTakeBreak}
                             onReviewCompletedWork={handleReviewCompletedWork}

@@ -5,6 +5,7 @@ import { GamificationData, Achievement, DailyChallenge, MotivationalMessage } fr
 import { generateNewStudyPlan, getUnscheduledMinutesForTasks, getLocalDateString, redistributeAfterTaskDeletion, redistributeMissedSessionsWithFeedback, checkCommitmentConflicts, redistributeMissedSessionsEnhanced } from './utils/scheduling';
 import { getAccurateUnscheduledTasks, shouldShowNotifications, getNotificationPriority } from './utils/enhanced-notifications';
 import { enhancedEstimationTracker } from './utils/enhanced-estimation-tracker';
+import { SessionTimeEditor } from './utils/session-time-editor';
 import { RedistributionOptions } from './types';
 import {
   ACHIEVEMENTS,
@@ -101,6 +102,10 @@ function App() {
             };
         }
     });
+    
+    // Session time editing state
+    const [sessionTimeEditor] = useState(() => new SessionTimeEditor(studyPlans, fixedCommitments, settings));
+    
     const [, setIsPlanStale] = useState(false);
     const [, setLastPlanStaleReason] = useState<"settings" | "commitment" | "task" | null>(null);
     const [hasLoadedFromStorage, setHasLoadedFromStorage] = useState(false);

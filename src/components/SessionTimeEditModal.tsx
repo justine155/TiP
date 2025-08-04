@@ -174,17 +174,11 @@ const SessionTimeEditModal: React.FC<SessionTimeEditModalProps> = ({
             </div>
           )}
 
-          {/* Warning Note */}
-          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 rounded-lg p-3">
-            <div className="flex items-start gap-2">
-              <AlertTriangle size={16} className="text-yellow-600 dark:text-yellow-400 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">Note</p>
-                <p className="text-xs text-yellow-700 dark:text-yellow-300">
-                  Changes may be reset if you modify settings, add new tasks, or regenerate schedules.
-                </p>
-              </div>
-            </div>
+          {/* Info Note */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+            <p className="text-xs text-blue-700 dark:text-blue-300">
+              💡 This change is temporary and may be reset when you regenerate your study plan.
+            </p>
           </div>
         </div>
 

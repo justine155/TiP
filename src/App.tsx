@@ -519,6 +519,8 @@ function App() {
 
             // Generate new study plan with existing plans for progress calculation and missed session redistribution
             const activeCommitments = fixedCommitments.filter(c => !c.archived);
+            // Clear temporary session time edits since we're regenerating the plan
+            sessionTimeEditor.clearTemporaryEdits();
             const result = generateNewStudyPlan(tasks, settings, activeCommitments, studyPlans);
             const newPlans = result.plans;
             
@@ -1737,6 +1739,7 @@ function App() {
         
         // Auto-regenerate study plan with new settings
         if (tasks.length > 0) {
+            sessionTimeEditor.clearTemporaryEdits();
             const { plans: newPlans } = generateNewStudyPlan(tasks, newSettings, fixedCommitments, studyPlans);
             
             // Preserve session status from previous plan
@@ -2172,9 +2175,9 @@ function App() {
 
                     {activeTab === 'calendar' && (
                         <CalendarView
-                            studyPlans={studyPlans}
-                        fixedCommitments={fixedCommitments}
-                        tasks={tasks}
+                            studyPlans={sessionTimeEditor.applyEditsToPlans(studyPlans)}
+                            fixedCommitments={fixedCommitments}
+                            tasks={tasks}
                             onSelectTask={handleSelectTask}
                             onStartManualSession={(commitment, durationSeconds) => {
                                 setGlobalTimer({
@@ -2634,7 +2637,7 @@ function App() {
                                                             <li>• Review the Suggestions panel for schedule improvements</li>
                                                             <li>• Adjust time estimates based on your completion patterns</li>
                                                             <li>• Experiment with different Study Plan Modes to find what works best</li>
-                                                            <li>��� Use the Progress Dashboard to track your productivity trends</li>
+                                                            <li>📊 Use the Progress Dashboard to track your productivity trends</li>
                                                         </ul>
                                                     </div>
                                                 </div>
@@ -2765,7 +2768,7 @@ function App() {
                                         <div className="grid grid-cols-3 gap-2">
                                             {[
                                                 { amount: '₱50', emoji: '☕', desc: 'Coffee' },
-                                                { amount: '₱100', emoji: '���', desc: 'Pizza' },
+                                                { amount: '₱100', emoji: '🍕', desc: 'Pizza' },
                                                 { amount: '₱200', emoji: '🎉', desc: 'Party' }
                                             ].map((item, index) => (
                                                 <div

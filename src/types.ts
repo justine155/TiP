@@ -220,3 +220,24 @@ export interface UserReschedule {
   taskId: string; // Reference to the task
   sessionNumber?: number; // Session number for tracking
 }
+
+export interface SessionTimeEdit {
+  id: string; // Unique identifier for this edit
+  planDate: string; // Date of the plan (YYYY-MM-DD)
+  taskId: string; // Task ID
+  sessionNumber: number; // Session number
+  originalStartTime: string; // Original start time (HH:MM)
+  newStartTime: string; // New start time (HH:MM)
+  newEndTime: string; // Calculated end time based on duration
+  editedAt: string; // Timestamp when edited
+  isTemporary?: boolean; // If true, will be reset on plan regeneration
+}
+
+export interface CommitmentGroup {
+  id: string;
+  name: string;
+  commitmentIds: string[];
+  color?: string;
+  isVisible: boolean;
+  createdAt: string;
+}

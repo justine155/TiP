@@ -42,6 +42,25 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
     localStorage.setItem('timepilot-commitment-groups', JSON.stringify(groups));
   }, [groups]);
 
+  // Predefined colors for groups
+  const groupColors = [
+    '#3b82f6', // Blue
+    '#10b981', // Emerald
+    '#f59e0b', // Amber
+    '#ef4444', // Red
+    '#8b5cf6', // Violet
+    '#06b6d4', // Cyan
+    '#84cc16', // Lime
+    '#f97316', // Orange
+    '#ec4899', // Pink
+    '#6366f1'  // Indigo
+  ];
+
+  const getNextColor = () => {
+    const usedColors = groups.map(group => group.color).filter(Boolean);
+    return groupColors.find(color => !usedColors.includes(color)) || groupColors[0];
+  };
+
   const createGroup = () => {
     if (!newGroupName.trim()) return;
 
@@ -49,6 +68,7 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
       id: `group-${Date.now()}`,
       name: newGroupName.trim(),
       commitmentIds: [],
+      color: getNextColor(),
       isVisible: true,
       createdAt: new Date().toISOString()
     };

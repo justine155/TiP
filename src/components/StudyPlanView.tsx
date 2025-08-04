@@ -1100,7 +1100,7 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                             >
                               <Edit3 size={12} />
                             </button>
-                            <span>���</span>
+                            <span>•</span>
                             <span>{formatTime(session.allocatedHours)}</span>
                             {isRescheduled && session.originalTime && (
                               <span className="text-blue-600 dark:text-blue-400">

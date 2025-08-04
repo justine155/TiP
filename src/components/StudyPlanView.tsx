@@ -920,7 +920,16 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                   <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-200">
                     <div className="flex items-center space-x-1">
                       <Clock size={16} />
-                      {session.startTime} - {session.endTime}
+                      <span>{session.startTime} - {session.endTime}</span>
+                      {!isDone && !isCompleted && sessionStatus !== 'missed' && (
+                        <button
+                          onClick={(e) => handleEditSessionTime(session, task, todaysPlan.date, e)}
+                          className="ml-2 p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          title="Edit start time"
+                        >
+                          <Edit3 size={14} />
+                        </button>
+                      )}
                     </div>
                     <div className="flex items-center space-x-1">
                       <TrendingUp size={16} />
@@ -998,7 +1007,7 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
             <h2 className="text-xl font-semibold text-gray-800 ml-2 dark:text-white">Today's Sessions</h2>
           </div>
           <div className="text-center py-8">
-            <div className="text-4xl mb-4">📚</div>
+            <div className="text-4xl mb-4">����</div>
             <h3 className="text-xl font-semibold text-gray-800 mb-2 dark:text-white">No Sessions Planned</h3>
             <p className="text-gray-600 dark:text-gray-300">
               You have no study sessions planned for today. Time to generate a study plan! 🚀

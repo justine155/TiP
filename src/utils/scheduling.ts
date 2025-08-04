@@ -1042,12 +1042,12 @@ export const generateNewStudyPlan = (
 
             // Check if we have enough time for minimum session
             if (availableHours >= minSessionHours) {
-              // Determine session length based on task frequency preference
-          let maxSessionHours = 2; // Default max
+              // Determine session length based on task frequency preference and max session length
+          let maxSessionHours = task.maxSessionLength || 2; // Use task's preference or default
           if (task.targetFrequency === 'weekly') {
-            maxSessionHours = Math.min(4, remainingHours); // Longer sessions for weekly tasks
+            maxSessionHours = Math.min(maxSessionHours * 2, remainingHours); // Longer sessions for weekly tasks
           } else if (task.targetFrequency === 'daily') {
-            maxSessionHours = Math.min(1.5, remainingHours); // Shorter sessions for daily tasks
+            maxSessionHours = Math.min(maxSessionHours * 0.75, remainingHours); // Shorter sessions for daily tasks
           }
 
           const sessionHours = Math.min(

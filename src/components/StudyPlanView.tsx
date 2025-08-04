@@ -1090,6 +1090,16 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                           <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-300 group">
                             <span>{session.startTime} - {session.endTime}</span>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditSessionTime(session, task, plan.date, e);
+                              }}
+                              className="p-0.5 text-gray-300 hover:text-blue-500 dark:text-gray-600 dark:hover:text-blue-400 transition-colors opacity-0 group-hover:opacity-100"
+                              title="Edit start time"
+                            >
+                              <Edit3 size={10} />
+                            </button>
                             <span>���</span>
                             <span>{formatTime(session.allocatedHours)}</span>
                             {isRescheduled && session.originalTime && (

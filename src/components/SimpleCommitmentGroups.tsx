@@ -6,6 +6,8 @@ interface SimpleCommitmentGroupsProps {
   commitments: FixedCommitment[];
   onEditCommitment: (commitment: FixedCommitment) => void;
   onDeleteCommitment: (id: string) => void;
+  showOnlyUngrouped?: boolean;
+  showOnlyGrouped?: boolean;
 }
 
 const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({

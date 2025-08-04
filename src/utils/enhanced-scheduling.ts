@@ -33,7 +33,7 @@ export class ConflictChecker {
     excludeSessionId?: string
   ): ConflictCheckResult {
     const conflicts: ConflictCheckResult['conflicts'] = [];
-    
+
     // Basic time validation
     if (!this.isValidTimeRange(startTime, endTime)) {
       conflicts.push({
@@ -59,9 +59,16 @@ export class ConflictChecker {
       });
     }
 
-    // Check session overlaps
+    // Filter out skipped and completed sessions from conflict checking
+    const activeSessions = existingSessions.filter(session =>
+      session.status !== 'skipped' &&
+      session.status !== 'completed' &&
+      !session.done
+    );
+
+    // Check session overlaps with active sessions only
     const sessionConflicts = this.checkSessionOverlaps(
-      date, startTime, endTime, existingSessions, excludeSessionId
+      date, startTime, endTime, activeSessions, excludeSessionId
     );
     conflicts.push(...sessionConflicts);
 
@@ -69,13 +76,13 @@ export class ConflictChecker {
     const commitmentConflicts = this.checkCommitmentConflicts(date, startTime, endTime);
     conflicts.push(...commitmentConflicts);
 
-    // Check daily limits
-    const dailyLimitConflicts = this.checkDailyLimits(date, startTime, endTime, existingSessions);
+    // Check daily limits (only count active sessions)
+    const dailyLimitConflicts = this.checkDailyLimits(date, startTime, endTime, activeSessions);
     conflicts.push(...dailyLimitConflicts);
 
     const isValid = conflicts.length === 0;
     const suggestedAlternatives = isValid ? undefined : this.findAlternativeSlots(
-      date, this.calculateDuration(startTime, endTime), existingSessions
+      date, this.calculateDuration(startTime, endTime), activeSessions
     );
 
     return {

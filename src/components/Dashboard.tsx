@@ -485,8 +485,7 @@ const Dashboard: React.FC<DashboardProps> = ({ tasks, studyPlans, dailyAvailable
               <div className="text-gray-600 mb-2 dark:text-gray-300">
                 {(() => {
                   const activeSessions = todaysPlan.plannedTasks.filter(session => {
-                    const sessionStatus = checkSessionStatus(session, todaysPlan.date);
-                    return sessionStatus !== 'missed' && session.status !== 'skipped';
+                    return session.status !== 'skipped';
                   });
                   const activeSessionCount = activeSessions.length;
                   const activeSessionHours = activeSessions.reduce((sum, session) => sum + session.allocatedHours, 0);

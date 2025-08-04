@@ -90,7 +90,7 @@ const SessionTimeEditModal: React.FC<SessionTimeEditModalProps> = ({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
             <Clock size={20} className="text-blue-500" />
-            Edit Session Time
+            Reschedule Session
           </h3>
           <button
             onClick={onClose}

@@ -130,12 +130,7 @@ const SessionTimeEditModal: React.FC<SessionTimeEditModalProps> = ({
           </div>
 
           {/* Conflict Check */}
-          {isChecking ? (
-            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-              <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-              <span className="text-sm">Checking for conflicts...</span>
-            </div>
-          ) : conflictCheck.hasConflict ? (
+          {conflictCheck.hasConflict ? (
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg p-3">
               <div className="flex items-start gap-2">
                 <AlertTriangle size={16} className="text-red-600 dark:text-red-400 mt-0.5" />

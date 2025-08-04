@@ -2260,11 +2260,20 @@ function App() {
                                             </p>
                                         ) : (
                                             fixedCommitments.filter(c => showArchivedCommitments || !c.archived).map((commitment) => (
-                                                <div key={commitment.id} className="p-4 sm:p-6 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all duration-200 dark:bg-gray-800 dark:border-gray-700">
+                                                <div key={commitment.id} className={`p-4 sm:p-6 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 ${
+                                                    commitment.archived ? 'opacity-75 bg-gray-50 dark:bg-gray-900' : ''
+                                                }`}>
                                                     <div className="flex items-start justify-between">
                                                         <div className="flex-1 min-w-0">
                                                             <div className="flex items-center space-x-3 mb-3">
-                                                                <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white truncate">{commitment.title}</h3>
+                                                                <h3 className={`text-base sm:text-lg font-semibold truncate ${
+                                                                    commitment.archived ? 'text-gray-500 dark:text-gray-400 line-through' : 'text-gray-800 dark:text-white'
+                                                                }`}>{commitment.title}</h3>
+                                                                {commitment.archived && (
+                                                                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                                                        Archived
+                                                                    </span>
+                                                                )}
                                                                 <span className={`px-2 sm:px-3 py-1 text-xs font-medium rounded-full capitalize flex-shrink-0 ${
                                                                     commitment.type === 'class' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
                                                                     commitment.type === 'work' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :

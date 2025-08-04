@@ -571,6 +571,27 @@ const TaskInput: React.FC<TaskInputProps> = ({ onAddTask, onCancel, userSettings
                       )}
                     </div>
 
+                    {/* Additional preferences for deadline tasks */}
+                    {formData.deadlineType !== 'none' && (
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-200 mb-1">Minimum session length</label>
+                        <select
+                          value={formData.minWorkBlock}
+                          onChange={e => setFormData(f => ({ ...f, minWorkBlock: parseInt(e.target.value) }))}
+                          className="w-full px-2 py-1 border rounded text-sm bg-white dark:bg-gray-800 dark:text-white"
+                        >
+                          <option value={15}>15 minutes</option>
+                          <option value={30}>30 minutes</option>
+                          <option value={45}>45 minutes</option>
+                          <option value={60}>1 hour</option>
+                          <option value={90}>1.5 hours</option>
+                        </select>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Shorter sessions will be avoided or combined
+                        </div>
+                      </div>
+                    )}
+
                     {/* Additional preferences for no-deadline tasks */}
                     {formData.deadlineType === 'none' && (
                       <>

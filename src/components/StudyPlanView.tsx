@@ -31,6 +31,15 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
   const [notificationMessage, setNotificationMessage] = useState<string | null>(null);
   const [] = useState<{ taskTitle: string; unscheduledMinutes: number } | null>(null);
   const [showRegenerateConfirmation, setShowRegenerateConfirmation] = useState(false);
+
+  // Session time editing state
+  const [sessionTimeEditor] = useState(() => new SessionTimeEditor(studyPlans, fixedCommitments, settings));
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedSessionForEdit, setSelectedSessionForEdit] = useState<{
+    session: StudySession;
+    task: Task;
+    planDate: string;
+  } | null>(null);
   // Resched UI state
   const [reschedModal, setReschedModal] = useState<{ open: boolean; task: any | null }>({ open: false, task: null });
   const [reschedDate, setReschedDate] = useState<string>("");

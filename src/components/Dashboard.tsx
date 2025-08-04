@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { Clock, BookOpen, TrendingUp, Calendar, Bell, CheckCircle2, AlertTriangle, Clock3, X } from 'lucide-react';
-import { Task, StudyPlan } from '../types';
+import { Clock, BookOpen, TrendingUp, Calendar, Bell, CheckCircle2, AlertTriangle, Clock3, X, Edit3 } from 'lucide-react';
+import { Task, StudyPlan, FixedCommitment, UserSettings } from '../types';
 import { formatTime, getLocalDateString, checkSessionStatus } from '../utils/scheduling';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { SessionTimeEditor } from '../utils/session-time-editor';
+import SessionTimeEditModal from './SessionTimeEditModal';
 
 interface DashboardProps {
   tasks: Task[];

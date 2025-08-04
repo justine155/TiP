@@ -40,18 +40,18 @@ interface StudyTimerProps {
   tasks?: Task[];
 }
 
-const StudyTimer: React.FC<StudyTimerProps> = ({ 
-  currentTask, 
-  currentSession, 
-  onTimerComplete, 
-  planDate, 
-  sessionNumber, 
-  onMarkSessionDone, 
-  timer, 
-  onTimerStart, 
-  onTimerPause, 
-  onTimerStop, 
-  onTimerReset, 
+const StudyTimer: React.FC<StudyTimerProps> = ({
+  currentTask,
+  currentSession,
+  onTimerComplete,
+  planDate,
+  sessionNumber,
+  onMarkSessionDone,
+  timer,
+  onTimerStart,
+  onTimerPause,
+  onTimerStop,
+  onTimerReset,
   onTimerSpeedUp,
   onContinueWithNextSession,
   onTakeBreak,
@@ -65,6 +65,8 @@ const StudyTimer: React.FC<StudyTimerProps> = ({
     taskTitle: string;
     sessionNumber: number;
   } | null>(null);
+  const [isEditingTime, setIsEditingTime] = useState(false);
+  const [customTimeInput, setCustomTimeInput] = useState('');
 
   const handleStart = () => {
     onTimerStart();

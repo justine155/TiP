@@ -32,18 +32,10 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
   const [newGroupName, setNewGroupName] = useState('');
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
 
-  // Save groups to localStorage
+  // Save groups to localStorage whenever groups change
   useEffect(() => {
-    if (groups.length > 0) {
-      console.log('Saving commitment groups:', groups);
-      localStorage.setItem('timepilot-commitment-groups', JSON.stringify(groups));
-    } else {
-      // Don't clear localStorage when groups array is empty during initialization
-      const savedGroups = localStorage.getItem('timepilot-commitment-groups');
-      if (savedGroups && savedGroups !== '[]') {
-        console.log('Preserving existing groups in localStorage');
-      }
-    }
+    console.log('Saving commitment groups to localStorage:', groups);
+    localStorage.setItem('timepilot-commitment-groups', JSON.stringify(groups));
   }, [groups]);
 
   const createGroup = () => {

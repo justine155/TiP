@@ -31,7 +31,8 @@ export class SessionTimeEditor {
     planDate: string,
     newStartTime: string,
     sessionDuration: number, // in hours
-    excludeSessionId: string
+    excludeSessionId: string,
+    includeSuggestions: boolean = true
   ): { hasConflict: boolean; conflictsWith?: string; suggestedTimes?: string[] } {
     const newEndMinutes = this.timeToMinutes(newStartTime) + (sessionDuration * 60);
     const newEndTime = this.minutesToTime(newEndMinutes);
@@ -40,12 +41,12 @@ export class SessionTimeEditor {
     const studyStart = this.settings.studyWindowStartHour * 60;
     const studyEnd = this.settings.studyWindowEndHour * 60;
     const startMinutes = this.timeToMinutes(newStartTime);
-    
+
     if (startMinutes < studyStart || newEndMinutes > studyEnd) {
       return {
         hasConflict: true,
         conflictsWith: `Outside study window (${this.settings.studyWindowStartHour}:00 - ${this.settings.studyWindowEndHour}:00)`,
-        suggestedTimes: this.generateSuggestedTimes(planDate, sessionDuration, excludeSessionId)
+        suggestedTimes: includeSuggestions ? this.generateSuggestedTimes(planDate, sessionDuration, excludeSessionId) : []
       };
     }
 
@@ -64,7 +65,7 @@ export class SessionTimeEditor {
     if (plan) {
       for (const session of plan.plannedTasks) {
         const sessionId = `${session.taskId}-${session.sessionNumber}`;
-        
+
         // Skip the session we're editing and inactive sessions
         if (sessionId === excludeSessionId || session.status === 'skipped' || session.done) {
           continue;
@@ -80,7 +81,7 @@ export class SessionTimeEditor {
           return {
             hasConflict: true,
             conflictsWith: `Overlaps with ${editedSession.taskId} session (${editedSession.startTime} - ${editedSession.endTime})`,
-            suggestedTimes: this.generateSuggestedTimes(planDate, sessionDuration, excludeSessionId)
+            suggestedTimes: includeSuggestions ? this.generateSuggestedTimes(planDate, sessionDuration, excludeSessionId) : []
           };
         }
       }
@@ -96,7 +97,7 @@ export class SessionTimeEditor {
         return {
           hasConflict: true,
           conflictsWith: `Overlaps with ${commitment.title} (${commitment.startTime} - ${commitment.endTime})`,
-          suggestedTimes: this.generateSuggestedTimes(planDate, sessionDuration, excludeSessionId)
+          suggestedTimes: includeSuggestions ? this.generateSuggestedTimes(planDate, sessionDuration, excludeSessionId) : []
         };
       }
     }

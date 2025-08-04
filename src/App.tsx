@@ -2195,27 +2195,64 @@ function App() {
                                     onCancel={() => setEditingCommitment(null)}
                                 />
                             ) : (
-                                <div className="space-y-6">
-                                    {/* Ungrouped Commitments */}
-                                    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 dark:bg-gray-900 dark:shadow-gray-900">
-                                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 dark:text-white">Your Commitments</h2>
-                                        <SimpleCommitmentGroups
-                                            commitments={fixedCommitments}
-                                            onEditCommitment={setEditingCommitment}
-                                            onDeleteCommitment={handleDeleteFixedCommitment}
-                                            showOnlyUngrouped={true}
-                                        />
-                                    </div>
-
-                                    {/* Grouped Commitments */}
-                                    <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 dark:bg-gray-900 dark:shadow-gray-900">
-                                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 dark:text-white">Commitment Groups</h2>
-                                        <SimpleCommitmentGroups
-                                            commitments={fixedCommitments}
-                                            onEditCommitment={setEditingCommitment}
-                                            onDeleteCommitment={handleDeleteFixedCommitment}
-                                            showOnlyGrouped={true}
-                                        />
+                                <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 dark:bg-gray-900 dark:shadow-gray-900">
+                                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 dark:text-white">Your Commitments</h2>
+                                    <div className="space-y-3">
+                                        {fixedCommitments.length === 0 ? (
+                                            <p className="text-gray-500 text-center py-8 dark:text-gray-400">No commitments added yet. Add your class schedule, work hours, and other fixed commitments above.</p>
+                                        ) : (
+                                            fixedCommitments.map((commitment) => (
+                                                <div key={commitment.id} className="p-4 sm:p-6 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all duration-200 dark:bg-gray-800 dark:border-gray-700">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center space-x-3 mb-3">
+                                                                <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-white truncate">{commitment.title}</h3>
+                                                                <span className={`px-2 sm:px-3 py-1 text-xs font-medium rounded-full capitalize flex-shrink-0 ${
+                                                                    commitment.type === 'class' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300' :
+                                                                    commitment.type === 'work' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' :
+                                                                    commitment.type === 'appointment' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300' :
+                                                                        'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+                                                                }`}>
+                                                                    {commitment.type}
+                                                                </span>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+                                                                    <span className="font-medium">⏰</span>
+                                                                    <span>{commitment.startTime} - {commitment.endTime}</span>
+                                                                </div>
+                                                                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+                                                                    <span className="font-medium">📅</span>
+                                                                    <span className="truncate">{commitment.daysOfWeek.map(day => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]).join(', ')}</span>
+                                                                </div>
+                                                                {commitment.location && (
+                                                                    <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+                                                                        <span className="font-medium">📍</span>
+                                                                        <span className="truncate">{commitment.location}</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center space-x-2 ml-4 flex-shrink-0">
+                                                            <button
+                                                                onClick={() => setEditingCommitment(commitment)}
+                                                                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700"
+                                                                title="Edit commitment"
+                                                            >
+                                                                <Edit size={20} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteFixedCommitment(commitment.id)}
+                                                                className="p-2 text-red-500 hover:text-red-700 hover:bg-red-100 rounded-lg transition-colors dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900"
+                                                                title="Delete commitment"
+                                                            >
+                                                                <Trash2 size={20} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        )}
                                     </div>
                                 </div>
                             )}

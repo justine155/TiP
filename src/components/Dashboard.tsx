@@ -11,12 +11,15 @@ interface DashboardProps {
   studyPlans: StudyPlan[];
   dailyAvailableHours: number;
   workDays: number[];
+  fixedCommitments: FixedCommitment[];
+  userSettings: UserSettings;
   // lastTimedSession: { planDate: string; sessionNumber: number } | null; // removed
   // readyToMarkDone: { planDate: string; sessionNumber: number } | null; // keep if used
   // onMarkSessionDone: (planDate: string, sessionNumber: number) => void; // removed
   // onUndoSessionDone: (planDate: string, taskId: string, sessionNumber: number) => void; // removed
   onSelectTask: (task: Task, session?: { allocatedHours: number; planDate?: string; sessionNumber?: number }) => void;
   onGenerateStudyPlan?: () => void; // Add regenerate handler
+  onSessionTimeEdit?: () => void; // Callback when session time is edited
   hasCompletedTutorial?: boolean;
 }
 

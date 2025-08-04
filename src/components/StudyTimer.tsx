@@ -129,6 +129,68 @@ const StudyTimer: React.FC<StudyTimerProps> = ({
     }
   };
 
+  const handleTimerClick = () => {
+    if (!timer.isRunning) {
+      setIsEditingTime(true);
+      setCustomTimeInput(formatCustomTimeInput(timer.currentTime));
+    }
+  };
+
+  const handleTimeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomTimeInput(e.target.value);
+  };
+
+  const handleTimeInputSubmit = () => {
+    const newTimeInSeconds = parseCustomTimeInput(customTimeInput);
+    if (newTimeInSeconds > 0) {
+      // Update the timer current time without affecting total time (session duration)
+      onTimerReset(); // Reset to original time first
+      // Then set the custom time - we need to add a new prop for this
+      const customTimeDiff = timer.totalTime - newTimeInSeconds;
+      // Simulate fast-forward/rewind by calling speed up multiple times
+      if (customTimeDiff > 0) {
+        // Speed up (reduce time)
+        for (let i = 0; i < Math.floor(customTimeDiff / 60); i++) {
+          setTimeout(() => onTimerSpeedUp(), i * 10);
+        }
+      }
+    }
+    setIsEditingTime(false);
+    setCustomTimeInput('');
+  };
+
+  const handleTimeInputCancel = () => {
+    setIsEditingTime(false);
+    setCustomTimeInput('');
+  };
+
+  // Format seconds to MM:SS or HH:MM:SS for input
+  const formatCustomTimeInput = (seconds: number): string => {
+    const totalSeconds = Math.max(0, Math.round(seconds));
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+
+    if (h > 0) {
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    } else {
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+  };
+
+  // Parse input like "25:30" or "1:25:30" to seconds
+  const parseCustomTimeInput = (input: string): number => {
+    const parts = input.split(':').map(p => parseInt(p) || 0);
+    if (parts.length === 2) {
+      // MM:SS format
+      return parts[0] * 60 + parts[1];
+    } else if (parts.length === 3) {
+      // HH:MM:SS format
+      return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    return 0;
+  };
+
   return (
     <div className="space-y-6">
       {/* Task Info */}

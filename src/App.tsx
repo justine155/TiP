@@ -2059,8 +2059,14 @@ function App() {
                             studyPlans={studyPlans}
                             dailyAvailableHours={settings.dailyAvailableHours}
                             workDays={settings.workDays}
+                            fixedCommitments={fixedCommitments}
+                            userSettings={settings}
                             onSelectTask={handleSelectTask}
                             onGenerateStudyPlan={handleGenerateStudyPlan}
+                            onSessionTimeEdit={() => {
+                                // Trigger a re-render when session times are edited
+                                setStudyPlans([...studyPlans]);
+                            }}
                             hasCompletedTutorial={localStorage.getItem('timepilot-interactive-tutorial-complete') === 'true'}
                         />
                     )}

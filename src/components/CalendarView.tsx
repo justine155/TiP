@@ -574,6 +574,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({
 
     } else if (event.resource.type === 'commitment') {
       const type = event.resource.data.type;
+      const archived = event.resource.data.archived;
+      
       if (type === 'buffer') {
         // Make buffer commitments invisible but still block time
         backgroundColor = 'transparent';
@@ -582,6 +584,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({
       } else {
         // Use commitment color from settings
         backgroundColor = colorSettings.commitmentColor;
+        
+        // Style archived commitments differently
+        if (archived) {
+          opacity = 0.5;
+          textDecoration = 'line-through';
+          backgroundImage = 'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(255,255,255,0.3) 2px, rgba(255,255,255,0.3) 4px)';
+          backgroundSize = '8px 8px';
+        }
       }
     }
     // Add visual indicators for task importance

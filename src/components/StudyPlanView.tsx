@@ -123,8 +123,9 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
     todayLength: today.length,
     todayParts: today.split('-')
   });
-  const todaysPlan = studyPlans.find(plan => plan.date === today);
-  console.log('today:', today, 'studyPlans:', studyPlans.map(p => p.date));
+  const editedStudyPlans = getEditedStudyPlans();
+  const todaysPlan = editedStudyPlans.find(plan => plan.date === today);
+  console.log('today:', today, 'studyPlans:', editedStudyPlans.map(p => p.date));
   console.log('todaysPlan found:', !!todaysPlan);
   if (todaysPlan) {
     console.log('todaysPlan sessions:', todaysPlan.plannedTasks.map(s => ({
@@ -137,7 +138,7 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
       originalDate: s.originalDate
     })));
   }
-  const upcomingPlans = studyPlans.filter(plan => plan.date > today).slice(0, 7);
+  const upcomingPlans = editedStudyPlans.filter(plan => plan.date > today).slice(0, 7);
   const suggestions = generateSmartSuggestions(tasks);
 
 
@@ -220,7 +221,7 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
   const missedSessions: Array<{planDate: string, session: StudySession, task: Task}> = [];
   
   // Only include past plans (not today's plan)
-  const plansToCheck = studyPlans.filter(plan => plan.date < today);
+  const plansToCheck = editedStudyPlans.filter(plan => plan.date < today);
   
   plansToCheck.forEach(plan => {
     plan.plannedTasks.forEach(session => {
@@ -241,7 +242,7 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
 
   // Debug logging
   console.log('Today:', today);
-  console.log('All study plans:', studyPlans.map(p => ({ date: p.date, tasks: p.plannedTasks.length })));
+  console.log('All study plans:', editedStudyPlans.map(p => ({ date: p.date, tasks: p.plannedTasks.length })));
   console.log('Plans to check (past + today):', plansToCheck.map(p => p.date));
   console.log('Plans to check count:', plansToCheck.length);
   console.log('Missed sessions found:', missedSessions.length);

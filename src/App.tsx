@@ -1225,6 +1225,14 @@ function App() {
         }));
     };
 
+    // Update timer to custom time
+    const handleTimerUpdateTime = (newTimeInSeconds: number) => {
+        setGlobalTimer(prev => ({
+            ...prev,
+            currentTime: Math.max(0, Math.min(newTimeInSeconds, prev.totalTime))
+        }));
+    };
+
     const handleTimerComplete = (taskId: string, timeSpent: number) => {
         // Find the session in studyPlans
         if (lastTimedSession) {

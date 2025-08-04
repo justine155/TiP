@@ -1129,6 +1129,22 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
           <p className="text-gray-500 dark:text-gray-300">Add some tasks and I'll create your perfect study schedule! 🎯</p>
         </div>
       )}
+
+      {/* Session Time Edit Modal */}
+      {selectedSessionForEdit && (
+        <SessionTimeEditModal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setSelectedSessionForEdit(null);
+          }}
+          session={selectedSessionForEdit.session}
+          task={selectedSessionForEdit.task}
+          planDate={selectedSessionForEdit.planDate}
+          sessionTimeEditor={sessionTimeEditor}
+          onSave={handleSessionTimeEditSave}
+        />
+      )}
     </div>
   );
 };

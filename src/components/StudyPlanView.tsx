@@ -40,6 +40,25 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
     task: Task;
     planDate: string;
   } | null>(null);
+
+  // Session editing handlers
+  const handleEditSessionTime = (session: StudySession, task: Task, planDate: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent task selection
+    setSelectedSessionForEdit({ session, task, planDate });
+    setEditModalOpen(true);
+  };
+
+  const handleSessionTimeEditSave = () => {
+    // Trigger re-render of study plans with edited times
+    setNotificationMessage('Session time updated successfully!');
+    setTimeout(() => setNotificationMessage(null), 3000);
+  };
+
+  // Get sessions with applied time edits
+  const getEditedStudyPlans = () => {
+    return sessionTimeEditor.applyEditsToPlans(studyPlans);
+  };
+
   // Resched UI state
   const [reschedModal, setReschedModal] = useState<{ open: boolean; task: any | null }>({ open: false, task: null });
   const [reschedDate, setReschedDate] = useState<string>("");
@@ -1062,7 +1081,7 @@ const StudyPlanView: React.FC<StudyPlanViewProps> = ({ studyPlans, tasks, fixedC
                           <div className="flex items-center space-x-2">
                           <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-300">
                             <span>{session.startTime} - {session.endTime}</span>
-                            <span>•</span>
+                            <span>���</span>
                             <span>{formatTime(session.allocatedHours)}</span>
                             {isRescheduled && session.originalTime && (
                               <span className="text-blue-600 dark:text-blue-400">

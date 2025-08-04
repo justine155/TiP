@@ -146,16 +146,7 @@ const StudyTimer: React.FC<StudyTimerProps> = ({
     const newTimeInSeconds = parseCustomTimeInput(customTimeInput);
     if (newTimeInSeconds > 0) {
       // Update the timer current time without affecting total time (session duration)
-      onTimerReset(); // Reset to original time first
-      // Then set the custom time - we need to add a new prop for this
-      const customTimeDiff = timer.totalTime - newTimeInSeconds;
-      // Simulate fast-forward/rewind by calling speed up multiple times
-      if (customTimeDiff > 0) {
-        // Speed up (reduce time)
-        for (let i = 0; i < Math.floor(customTimeDiff / 60); i++) {
-          setTimeout(() => onTimerSpeedUp(), i * 10);
-        }
-      }
+      onTimerUpdateTime(newTimeInSeconds);
     }
     setIsEditingTime(false);
     setCustomTimeInput('');

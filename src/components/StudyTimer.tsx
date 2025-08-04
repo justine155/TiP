@@ -31,6 +31,7 @@ interface StudyTimerProps {
   onTimerStop: () => void;
   onTimerReset: () => void;
   onTimerSpeedUp: () => void;
+  onTimerUpdateTime: (newTimeInSeconds: number) => void;
   // New props for completion flow
   onContinueWithNextSession?: () => void;
   onTakeBreak?: () => void;

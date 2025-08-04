@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Clock, MapPin, User, AlertTriangle } from 'lucide-react';
-import { FixedCommitment } from '../types';
+import { Plus, Clock, MapPin, User, AlertTriangle, Users } from 'lucide-react';
+import { FixedCommitment, CommitmentGroup } from '../types';
 import { checkCommitmentConflicts } from '../utils/scheduling';
+import CommitmentGroupManager from './CommitmentGroupManager';
 
 interface FixedCommitmentInputProps {
   onAddCommitment: (commitment: Omit<FixedCommitment, 'id' | 'createdAt'>) => void;

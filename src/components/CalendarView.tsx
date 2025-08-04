@@ -670,7 +670,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const customGutterHeader = (date: Date) => moment(date).format('HH:mm');
 
   // Custom event component with category emoji
-  const CustomEventComponent = ({ event }: { event: CalendarEvent }) => {
+  const CustomEventComponent = ({ event, ...props }: { event: CalendarEvent } & React.HTMLAttributes<HTMLDivElement>) => {
           let categoryEmoji = '';
       let statusIndicator = '';
       let duration = '';

@@ -531,6 +531,15 @@ const Dashboard: React.FC<DashboardProps> = ({
                 <Calendar className="text-blue-600 dark:text-blue-400" size={24} />
                 <span>Today's Sessions</span>
               </h2>
+
+              {/* Info about session time editing */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-4">
+                <p className="text-sm text-blue-800 dark:text-blue-200">
+                  💡 <strong>Tip:</strong> Click the edit icon next to session times to reschedule.
+                  Note: Changes may be reset when modifying settings, adding new tasks, or regenerating schedules.
+                </p>
+              </div>
+
               <div className="text-gray-600 mb-2 dark:text-gray-300">
                 {(() => {
                   const activeSessions = todaysPlan.plannedTasks.filter(session => {

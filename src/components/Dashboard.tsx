@@ -63,10 +63,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
-  // Get sessions with applied time edits
-  const getEditedStudyPlans = () => {
-    return sessionTimeEditor.applyEditsToPlans(studyPlans);
-  };
+  // Note: studyPlans now already includes applied time edits from parent component
 
   // Helper to get start/end of week/month
   const todayDate = new Date();
@@ -126,8 +123,7 @@ const Dashboard: React.FC<DashboardProps> = ({
 
   // Today's plan and workday status for filtered period
   const today = getLocalDateString();
-  const editedPlans = getEditedStudyPlans();
-  const filteredEditedPlans = editedPlans.filter(plan => {
+      const filteredEditedPlans = studyPlans.filter(plan => {
     const planFiltered = filteredPlans.find(fp => fp.date === plan.date);
     return planFiltered !== undefined;
   });

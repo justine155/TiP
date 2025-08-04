@@ -25,6 +25,36 @@ export class SessionTimeEditor {
   }
 
   /**
+   * Update the study plans data
+   */
+  updateStudyPlans(studyPlans: StudyPlan[]): void {
+    this.studyPlans = studyPlans;
+  }
+
+  /**
+   * Update the fixed commitments data
+   */
+  updateFixedCommitments(fixedCommitments: FixedCommitment[]): void {
+    this.fixedCommitments = fixedCommitments;
+  }
+
+  /**
+   * Update the settings data
+   */
+  updateSettings(settings: UserSettings): void {
+    this.settings = settings;
+  }
+
+  /**
+   * Update all data at once
+   */
+  updateData(studyPlans: StudyPlan[], fixedCommitments: FixedCommitment[], settings: UserSettings): void {
+    this.studyPlans = studyPlans;
+    this.fixedCommitments = fixedCommitments;
+    this.settings = settings;
+  }
+
+  /**
    * Check if a new start time conflicts with existing sessions or commitments
    */
   checkTimeConflict(

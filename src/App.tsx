@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Calendar, CheckSquare, Clock, Settings as SettingsIcon, BarChart3, CalendarDays, Lightbulb, Edit, Trash2, Menu, X, HelpCircle, Trophy } from 'lucide-react';
 import { Task, StudyPlan, UserSettings, FixedCommitment, StudySession, TimerState } from './types';
 import { GamificationData, Achievement } from './types-gamification';
@@ -106,11 +106,23 @@ function App() {
     // Session time editing state
     const [sessionTimeEditor] = useState(() => new SessionTimeEditor(studyPlans, fixedCommitments, settings));
     
+    // Keep sessionTimeEditor data in sync
+    useEffect(() => {
+        sessionTimeEditor.updateData(studyPlans, fixedCommitments, settings);
+    }, [sessionTimeEditor, studyPlans, fixedCommitments, settings]);
+    
     const [, setIsPlanStale] = useState(false);
     const [, setLastPlanStaleReason] = useState<"settings" | "commitment" | "task" | null>(null);
     const [hasLoadedFromStorage, setHasLoadedFromStorage] = useState(false);
     const [hasFirstChangeOccurred, setHasFirstChangeOccurred] = useState(false);
+    
+    // State to trigger re-renders when session times are edited
+    const [sessionTimeEditsRefresh, setSessionTimeEditsRefresh] = useState(0);
 
+    // Memoized edited study plans to ensure calendar updates when session times change
+    const editedStudyPlans = useMemo(() => {
+        return sessionTimeEditor.applyEditsToPlans(studyPlans);
+    }, [sessionTimeEditor, studyPlans, sessionTimeEditsRefresh]);
 
     // Add state to track last-timed session and ready-to-mark-done
     const [lastTimedSession, setLastTimedSession] = useState<{ planDate: string; sessionNumber: number } | null>(null);
@@ -2125,7 +2137,7 @@ function App() {
                     {activeTab === 'dashboard' && (
                         <Dashboard
                             tasks={tasks}
-                            studyPlans={studyPlans}
+                            studyPlans={editedStudyPlans}
                             dailyAvailableHours={settings.dailyAvailableHours}
                             workDays={settings.workDays}
                             fixedCommitments={fixedCommitments}
@@ -2135,6 +2147,7 @@ function App() {
                             onSessionTimeEdit={() => {
                                 // Trigger a re-render when session times are edited
                                 setStudyPlans([...studyPlans]);
+                                setSessionTimeEditsRefresh(prev => prev + 1);
                             }}
                             hasCompletedTutorial={localStorage.getItem('timepilot-interactive-tutorial-complete') === 'true'}
                         />
@@ -2164,7 +2177,7 @@ function App() {
 
                     {activeTab === 'plan' && (
                         <StudyPlanView
-                            studyPlans={studyPlans}
+                            studyPlans={editedStudyPlans}
                             tasks={tasks}
                             fixedCommitments={fixedCommitments}
                             onSelectTask={handleSelectTask}
@@ -2180,7 +2193,7 @@ function App() {
 
                     {activeTab === 'calendar' && (
                         <CalendarView
-                            studyPlans={sessionTimeEditor.applyEditsToPlans(studyPlans)}
+                            studyPlans={editedStudyPlans}
                             fixedCommitments={fixedCommitments}
                             tasks={tasks}
                             onSelectTask={handleSelectTask}

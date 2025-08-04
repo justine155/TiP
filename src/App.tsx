@@ -2195,12 +2195,24 @@ function App() {
                                 />
                             ) : (
                                 <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 dark:bg-gray-900 dark:shadow-gray-900">
-                                    <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4 dark:text-white">Your Commitments</h2>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white">Your Commitments</h2>
+                                        {fixedCommitments.some(c => c.archived) && (
+                                            <button
+                                                onClick={() => setShowArchivedCommitments(!showArchivedCommitments)}
+                                                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                                            >
+                                                {showArchivedCommitments ? 'Hide Archived' : 'Show Archived'} ({fixedCommitments.filter(c => c.archived).length})
+                                            </button>
+                                        )}
+                                    </div>
                                     <div className="space-y-3">
-                                        {fixedCommitments.length === 0 ? (
-                                            <p className="text-gray-500 text-center py-8 dark:text-gray-400">No commitments added yet. Add your class schedule, work hours, and other fixed commitments above.</p>
+                                        {fixedCommitments.filter(c => showArchivedCommitments || !c.archived).length === 0 ? (
+                                            <p className="text-gray-500 text-center py-8 dark:text-gray-400">
+                                                {showArchivedCommitments ? 'No archived commitments.' : 'No commitments added yet. Add your class schedule, work hours, and other fixed commitments above.'}
+                                            </p>
                                         ) : (
-                                            fixedCommitments.map((commitment) => (
+                                            fixedCommitments.filter(c => showArchivedCommitments || !c.archived).map((commitment) => (
                                                 <div key={commitment.id} className="p-4 sm:p-6 border border-gray-200 rounded-xl bg-white hover:shadow-md transition-all duration-200 dark:bg-gray-800 dark:border-gray-700">
                                                     <div className="flex items-start justify-between">
                                                         <div className="flex-1 min-w-0">

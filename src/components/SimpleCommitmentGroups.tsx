@@ -217,12 +217,56 @@ const SimpleCommitmentGroups: React.FC<SimpleCommitmentGroupsProps> = ({
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 {ungroupedCommitments.length} ungrouped commitment{ungroupedCommitments.length !== 1 ? 's' : ''}
               </span>
-              {groups.length > 0 && (
-                <p className="text-xs text-gray-500 dark:text-gray-500">
-                  💡 Use the dropdown to add these to a group
-                </p>
-              )}
+              <div className="flex items-center gap-3">
+                {groups.length > 0 ? (
+                  <p className="text-xs text-gray-500 dark:text-gray-500">
+                    💡 Use the dropdown to add these to a group
+                  </p>
+                ) : ungroupedCommitments.length > 1 ? (
+                  <button
+                    onClick={() => setIsCreatingGroup(true)}
+                    className="flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition-colors dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
+                  >
+                    <Plus size={12} />
+                    Create Group
+                  </button>
+                ) : null}
+              </div>
             </div>
+
+            {/* Quick Group Creation Form in Ungrouped Section */}
+            {isCreatingGroup && groups.length === 0 && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-3 mb-4 space-y-2">
+                <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">Create a group to organize your commitments:</p>
+                <input
+                  type="text"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
+                  placeholder="Group name (e.g., Classes, Work, Personal)"
+                  className="w-full px-3 py-2 border border-blue-300 dark:border-blue-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm"
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <button
+                    onClick={createGroup}
+                    disabled={!newGroupName.trim()}
+                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400 text-sm"
+                  >
+                    Create Group
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsCreatingGroup(false);
+                      setNewGroupName('');
+                    }}
+                    className="px-3 py-1 bg-gray-500 text-white rounded hover:bg-gray-600 text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-3">
               {ungroupedCommitments.map(commitment => renderCommitment(commitment, false))}
             </div>

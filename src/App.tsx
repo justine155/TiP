@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Calendar, CheckSquare, Clock, Settings as SettingsIcon, BarChart3, CalendarDays, Lightbulb, Edit, Trash2, Menu, X, HelpCircle, Trophy, User } from 'lucide-react';
+import { Calendar, CheckSquare, Clock, Settings as SettingsIcon, BarChart3, CalendarDays, Lightbulb, Edit, Trash2, Menu, X, HelpCircle, Trophy } from 'lucide-react';
 import { Task, StudyPlan, UserSettings, FixedCommitment, StudySession, TimerState } from './types';
-import { GamificationData, Achievement, DailyChallenge, MotivationalMessage } from './types-gamification';
-import { generateNewStudyPlan, getUnscheduledMinutesForTasks, getLocalDateString, redistributeAfterTaskDeletion, redistributeMissedSessionsWithFeedback, checkCommitmentConflicts, redistributeMissedSessionsEnhanced } from './utils/scheduling';
+import { GamificationData, Achievement } from './types-gamification';
+import { generateNewStudyPlan, getLocalDateString, redistributeAfterTaskDeletion, redistributeMissedSessionsWithFeedback, checkCommitmentConflicts, redistributeMissedSessionsEnhanced } from './utils/scheduling';
 import { getAccurateUnscheduledTasks, shouldShowNotifications, getNotificationPriority } from './utils/enhanced-notifications';
 import { enhancedEstimationTracker } from './utils/enhanced-estimation-tracker';
+import { SessionTimeEditor } from './utils/session-time-editor';
 import { RedistributionOptions } from './types';
 import {
   ACHIEVEMENTS,
@@ -61,7 +62,7 @@ function App() {
             const parsed = saved ? JSON.parse(saved) : [];
             if (Array.isArray(parsed)) {
                 // Migrate existing commitments to include recurring field
-                return parsed.map((commitment: any) => {
+                return parsed.map((commitment: FixedCommitment & { recurring?: boolean }) => {
                     if (commitment.recurring === undefined) {
                         // Legacy commitment - assume it's recurring and migrate
                         return {
@@ -101,6 +102,10 @@ function App() {
             };
         }
     });
+    
+    // Session time editing state
+    const [sessionTimeEditor] = useState(() => new SessionTimeEditor(studyPlans, fixedCommitments, settings));
+    
     const [, setIsPlanStale] = useState(false);
     const [, setLastPlanStaleReason] = useState<"settings" | "commitment" | "task" | null>(null);
     const [hasLoadedFromStorage, setHasLoadedFromStorage] = useState(false);
@@ -387,7 +392,7 @@ function App() {
             setIsPlanStale(false); // Mark plan as not stale on initial load
             setHasLoadedFromStorage(true); // Mark that initial load is complete
             setHasFirstChangeOccurred(false); // Reset first change flag
-        } catch (e) {
+        } catch {
             setTasks([]);
             setSettings({
                 dailyAvailableHours: 6,
@@ -445,7 +450,7 @@ function App() {
         } else {
             setIsPlanStale(false);
         }
-    }, [tasks, settings, fixedCommitments, hasLoadedFromStorage]);
+    }, [tasks, settings, fixedCommitments, hasLoadedFromStorage, hasFirstChangeOccurred]);
 
     // Manual study plan generation handler
     const handleGenerateStudyPlan = () => {
@@ -634,10 +639,10 @@ function App() {
             id: Date.now().toString(),
             createdAt: new Date().toISOString()
         };
-        let updatedTasks = [...tasks, newTask];
+        const updatedTasks = [...tasks, newTask];
         // Generate a study plan with the new task
         const activeCommitments = fixedCommitments.filter(c => !c.archived);
-        let { plans } = generateNewStudyPlan(updatedTasks, settings, activeCommitments, studyPlans);
+        const { plans } = generateNewStudyPlan(updatedTasks, settings, activeCommitments, studyPlans);
         // Check if the new task can actually be scheduled by examining the study plan
         const { plans: newPlans } = generateNewStudyPlan(updatedTasks, settings, activeCommitments, studyPlans);
         

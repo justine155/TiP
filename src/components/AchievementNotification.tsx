@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Trophy, X, Star, Sparkles } from 'lucide-react';
 import { Achievement } from '../types-gamification';
 
@@ -31,15 +31,15 @@ const AchievementNotification: React.FC<AchievementNotificationProps> = ({
       
       return () => clearTimeout(timer);
     }
-  }, [autoHide, duration]);
+  }, [autoHide, duration, handleDismiss]);
 
-  const handleDismiss = () => {
+  const handleDismiss = useCallback(() => {
     setAnimationsActive(false); // Stop all animations immediately
     setIsLeaving(true);
     setTimeout(() => {
       onDismiss();
     }, 300);
-  };
+  }, [onDismiss]);
 
   const getRarityColors = (rarity: string) => {
     switch (rarity) {

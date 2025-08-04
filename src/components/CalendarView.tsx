@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { StudyPlan, FixedCommitment, Task } from '../types';
+import { StudyPlan, FixedCommitment, Task, StudySession } from '../types';
 import { BookOpen, Clock, Settings, X } from 'lucide-react';
 import { checkSessionStatus } from '../utils/scheduling';
 import { getLocalDateString } from '../utils/scheduling';
@@ -34,7 +34,7 @@ interface CalendarEvent {
   end: Date;
   resource: {
     type: 'study' | 'commitment';
-    data: any;
+    data: StudySession | FixedCommitment;
   };
 }
 
@@ -46,17 +46,7 @@ const intervalOptions = [
   { value: 60, label: '1 hour' },
 ];
 
-// Color palette for up to 8 categories
-const CATEGORY_COLORS = [
-  '#6366f1', // Indigo
-  '#f59e42', // Orange
-  '#10b981', // Green
-  '#f43f5e', // Red
-  '#eab308', // Yellow
-  '#3b82f6', // Blue
-  '#a21caf', // Purple
-  '#14b8a6', // Teal
-];
+
 const DEFAULT_UNCATEGORIZED_TASK_COLOR = '#9ca3af'; // Light gray for uncategorized tasks
 
 
@@ -680,7 +670,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   const customGutterHeader = (date: Date) => moment(date).format('HH:mm');
 
   // Custom event component with category emoji
-  const CustomEventComponent = ({ event, ...props }: any) => {
+  const CustomEventComponent = ({ event }: { event: CalendarEvent }) => {
           let categoryEmoji = '';
       let statusIndicator = '';
       let duration = '';
@@ -756,7 +746,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   };
 
   // Custom toolbar for interval selector
-  function CustomToolbar({ label, onNavigate, onView, view }: any) {
+  function CustomToolbar({ label, onNavigate, onView, view }: { label: string; onNavigate: (action: string) => void; onView: (view: string) => void; view: string }) {
     return (
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
@@ -799,10 +789,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({
   }
 
   // Calculate min/max for zoom effect - consistent full day view
-  let minTime: Date, maxTime: Date;
   // All intervals show the same full day range - extended to show all commitments
-    minTime = new Date(0, 0, 0, 4, 0, 0);  // 4 AM
-    maxTime = new Date(0, 0, 0, 23, 59, 0);  // 11:59 PM (just before midnight)
+  const minTime = new Date(0, 0, 0, 4, 0, 0);  // 4 AM
+  const maxTime = new Date(0, 0, 0, 23, 59, 0);  // 11:59 PM (just before midnight)
 
   // If mobile, render the mobile calendar component
   if (isMobile) {

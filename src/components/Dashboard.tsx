@@ -39,6 +39,16 @@ const Dashboard: React.FC<DashboardProps> = ({
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
 
+  // Session time editing state
+  const [sessionTimeEditor] = useState(() => new SessionTimeEditor(studyPlans, fixedCommitments, userSettings));
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedSessionForEdit, setSelectedSessionForEdit] = useState<{
+    session: any;
+    task: Task;
+    planDate: string;
+  } | null>(null);
+  const [sessionsRefreshKey, setSessionsRefreshKey] = useState(0);
+
   // Helper to get start/end of week/month
   const todayDate = new Date();
   const startOfWeek = new Date(todayDate);
